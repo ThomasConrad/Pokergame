@@ -4,7 +4,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 
-namespace ConsoleApplication1
+namespace Card
 {
     public class Card
     {
@@ -30,6 +30,11 @@ namespace ConsoleApplication1
         public const int cardAmount = 52;
         private Random ranCard;
 
+        public int getCardAmount()
+        {
+            return cardAmount;
+        }
+
         public Deck()
         {
             String[] faces = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
@@ -54,7 +59,7 @@ namespace ConsoleApplication1
 
         }
 
-        public Card DealCard()
+        public Card GenerateCard()
         {
             if (currentCard < deck.Length)
                 return deck[currentCard++];
@@ -63,15 +68,25 @@ namespace ConsoleApplication1
         }
     }
 
-    public class Dealer
+    public class StartHand
+    {
+        int playerAmount = 4;
+        public List<List<string>> Hands = new List<List<string>>();
+
+
+        
+    }
+
+    public class Builder
     {
         public static void Main()
         {
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
-            for (int i = 0; i < 52; i++)
+
+            for (int i = 0; i < Deck.cardAmount; i++)
             {
-                Console.Write("{0,-20}",mainDeck.DealCard());
+                Console.Write("{0,-20}",mainDeck.GenerateCard());
                 if ((i + 1) % 4 == 0)
                     Console.WriteLine();
             }
