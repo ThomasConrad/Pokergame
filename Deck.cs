@@ -65,7 +65,7 @@ namespace Card
 
     public class StartHand
     {
-        int Server;
+        int Server.players.Length;
         public List<List<string>> Hands = new List<List<string>>();
 
 
