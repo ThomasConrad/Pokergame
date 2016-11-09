@@ -4,7 +4,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Card
+namespace Poker
 {
     public class Card
     {
@@ -70,8 +70,9 @@ namespace Card
 
 
     }
-    public class Builder
+    class Program
     {
+        /*
         public static void Main()
         {
             Deck mainDeck = new Deck();
@@ -85,8 +86,20 @@ namespace Card
             }
             Console.ReadLine();
         }
-    }
+        */
+        static void Main(string[] args)
+        {
+            Server testserver = new Server(getLocalIP(), 7777);
+            Client testclient = new Client();
 
+            testserver.listen();
+            testclient.connect("127.0.0.1", 7777);
+            testclient.sendInt(10);
+            Int32 a = testserver.receiveInt();
+            Console.WriteLine(a.ToString());
+            Console.ReadLine();
+        }
+    }
     public static class NetTools
     {
         public static IPAddress getLocalIP()
@@ -122,6 +135,11 @@ namespace Card
         {
             players[slot] = s.Accept();
             playerCount++;
+        }
+
+        public void listen()
+        {
+            s.Listen(1);
         }
 
         public void closePlayer(Int32 slot)
