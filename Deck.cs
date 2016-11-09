@@ -30,11 +30,6 @@ namespace Card
         public const int cardAmount = 52;
         private Random ranCard;
 
-        public int getCardAmount()
-        {
-            return cardAmount;
-        }
-
         public Deck()
         {
             String[] faces = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
@@ -71,9 +66,12 @@ namespace Card
     public class StartHand
     {
         int playerAmount = 4;
-        public List<List<string>> Hands = new List<List<string>>();
+        public Card[][] Hands = new Card[][];
 
+        public StartHand()
+        {
 
+        }
         
     }
 
@@ -84,13 +82,16 @@ namespace Card
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
 
+            
             for (int i = 0; i < Deck.cardAmount; i++)
             {
                 Console.Write("{0,-20}",mainDeck.GenerateCard());
                 if ((i + 1) % 4 == 0)
                     Console.WriteLine();
             }
+            
             Console.ReadLine();
+            
         }
     }
 
