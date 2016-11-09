@@ -201,4 +201,3 @@ namespace Card
             return BitConverter.ToString(bytes, 0);
         }
     }
-}
