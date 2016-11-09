@@ -65,7 +65,7 @@ namespace Card
 
     public class StartHand
     {
-        int playerAmount = 4;
+        int Server;
         public List<List<string>> Hands = new List<List<string>>();
 
 
@@ -110,7 +110,7 @@ namespace Card
         public Int32 playerCount = 0;
         public Socket[] players = new Socket[8];
         Socket s;
-
+        
         public Server(IPAddress ip, Int32 port)
         {
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
