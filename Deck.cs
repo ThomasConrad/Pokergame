@@ -62,14 +62,6 @@ namespace Poker
                 return null;
         }
     }
-
-    public class StartHand
-    {
-        int Server.players.Length;
-        public List<List<string>> Hands = new List<List<string>>();
-
-
-    }
     class Program
     {
         /*
@@ -89,13 +81,14 @@ namespace Poker
         */
         static void Main(string[] args)
         {
-            Server testserver = new Server(getLocalIP(), 7777);
+            Server testserver = new Server(NetTools.getLocalIP(), 7777);
             Client testclient = new Client();
 
             testserver.listen();
             testclient.connect("127.0.0.1", 7777);
+            testserver.acceptPlayer(0);
             testclient.sendInt(10);
-            Int32 a = testserver.receiveInt();
+            Int32 a = testserver.receiveInt(0);
             Console.WriteLine(a.ToString());
             Console.ReadLine();
         }
@@ -139,7 +132,7 @@ namespace Poker
 
         public void listen()
         {
-            s.Listen(1);
+            s.Listen(10);
         }
 
         public void closePlayer(Int32 slot)
@@ -177,7 +170,6 @@ namespace Poker
     {
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
         Socket s;
-        Socket server;
         public Client()
         {
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
