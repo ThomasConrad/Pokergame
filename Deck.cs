@@ -30,11 +30,6 @@ namespace Card
         public const int cardAmount = 52;
         private Random ranCard;
 
-        public int getCardAmount()
-        {
-            return cardAmount;
-        }
-
         public Deck()
         {
             String[] faces = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
