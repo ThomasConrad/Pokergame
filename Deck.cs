@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Card
 {
@@ -89,6 +91,60 @@ namespace Card
                     Console.WriteLine();
             }
             Console.ReadLine();
+        }
+    }
+
+    public static class Net
+    {
+        public static IPAddress getLocalIP()
+        {
+            IPAddress ip;
+            foreach (IPAddress i in Dns.GetHostAddresses())
+            {
+                if (i.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    ip = i;
+                    break;
+                }
+            }
+            return ip;
+        }
+        //Bare fordi det er lidt lettere at arbejde med:
+        public static string getIPString()
+        {
+            return getIP().ToString();
+        }
+
+        public Int32 receiveInt(Socket s)
+        {
+            byte[] bytes;
+            s.Receive(bytes);
+            return BitConverter.ToInt32(bytes, 0);
+        }
+
+        public string receiveString(Socket s)
+        {
+            byte[] bytes;
+            s.Receive(bytes);
+            return BitConverter.ToString(bytes, 0);
+        }
+    }
+    public class Server
+    {
+        public Int32 playerCount = 0;
+        public Socket[] players = new Socket[8];
+        Socket s;
+
+        public Server(IPAddress ip, Int32 port)
+        {
+            s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPEndPoint endpoint = new IPEndPoint(ip, port);
+            s.Bind(endpoint);
+        }
+
+        public void acceptPlayer()
+        {
+
         }
     }
 }
