@@ -74,7 +74,7 @@ namespace Card
         public List<List<string>> Hands = new List<List<string>>();
 
 
-
+    }
     }
 
     public class Builder
