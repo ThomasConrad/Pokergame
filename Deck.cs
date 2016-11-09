@@ -74,7 +74,7 @@ namespace Card
         public List<List<string>> Hands = new List<List<string>>();
 
 
-        
+
     }
 
     public class Builder
@@ -86,7 +86,7 @@ namespace Card
 
             for (int i = 0; i < Deck.cardAmount; i++)
             {
-                Console.Write("{0,-20}",mainDeck.GenerateCard());
+                Console.Write("{0,-20}", mainDeck.GenerateCard());
                 if ((i + 1) % 4 == 0)
                     Console.WriteLine();
             }
@@ -94,43 +94,26 @@ namespace Card
         }
     }
 
-    public static class Net
+    public static class NetTools
     {
         public static IPAddress getLocalIP()
         {
             IPAddress ip;
-            foreach (IPAddress i in Dns.GetHostAddresses())
+            foreach (IPAddress i in Dns.GetHostAddresses(""))
             {
                 if (i.AddressFamily == AddressFamily.InterNetwork)
                 {
                     ip = i;
-                    break;
+                    return ip;
                 }
             }
-            return ip;
-        }
-        //Bare fordi det er lidt lettere at arbejde med:
-        public static string getIPString()
-        {
-            return getIP().ToString();
-        }
-
-        public Int32 receiveInt(Socket s)
-        {
-            byte[] bytes;
-            s.Receive(bytes);
-            return BitConverter.ToInt32(bytes, 0);
-        }
-
-        public string receiveString(Socket s)
-        {
-            byte[] bytes;
-            s.Receive(bytes);
-            return BitConverter.ToString(bytes, 0);
+            return null;
         }
     }
+
     public class Server
     {
+        System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
         public Int32 playerCount = 0;
         public Socket[] players = new Socket[8];
         Socket s;
@@ -142,9 +125,80 @@ namespace Card
             s.Bind(endpoint);
         }
 
-        public void acceptPlayer()
+        public void acceptPlayer(Int32 slot)
         {
+            players[slot] = s.Accept();
+            playerCount++;
+        }
 
+        public void closePlayer(Int32 slot)
+        {
+            players[slot].Close();
+            playerCount--;
+        }
+
+        public void sendString(string message, Int32 slot)
+        {
+            players[slot].Send(encoder.GetBytes(message));
+        }
+
+        public void sendInt(Int32 message, Int32 slot)
+        {
+            players[slot].Send(encoder.GetBytes(message.ToString()));
+        }
+
+        public Int32 receiveInt(Int32 slot)
+        {
+            byte[] bytes = new byte[2048];
+            players[slot].Receive(bytes);
+            return BitConverter.ToInt32(bytes, 0);
+        }
+
+        public string receiveString(Int32 slot)
+        {
+            byte[] bytes = new byte[2048];
+            players[slot].Receive(bytes);
+            return BitConverter.ToString(bytes, 0);
+        }
+    }
+
+    public class Client
+    {
+        System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
+        Socket s;
+        Socket server;
+        public Client()
+        {
+            s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        public void connect(string ip, Int32 port)
+        {
+            s.Connect(IPAddress.Parse(ip), port);
+        }
+
+        public void sendString(string message)
+        {
+            s.Send(encoder.GetBytes(message));
+        }
+
+        public void sendInt(Int32 message)
+        {
+            s.Send(encoder.GetBytes(message.ToString()));
+        }
+
+        public static Int32 receiveInt(Socket s)
+        {
+            byte[] bytes = new byte[2048];
+            s.Receive(bytes);
+            return BitConverter.ToInt32(bytes, 0);
+        }
+
+        public static string receiveString(Socket s)
+        {
+            byte[] bytes = new byte[2048];
+            s.Receive(bytes);
+            return BitConverter.ToString(bytes, 0);
         }
     }
 }
