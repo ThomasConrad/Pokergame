@@ -70,8 +70,6 @@ namespace Card
 
 
     }
-    }
-
     public class Builder
     {
         public static void Main()
@@ -196,3 +194,4 @@ namespace Card
             return BitConverter.ToString(bytes, 0);
         }
     }
+}
