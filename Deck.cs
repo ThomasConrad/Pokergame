@@ -65,7 +65,9 @@ namespace Card
 
     public class StartHand
     {
-        int Server.players.Length;
+        Server s = new Server();
+        int playerAmount = s.playerCount;
+
         public List<List<string>> Hands = new List<List<string>>();
 
 
