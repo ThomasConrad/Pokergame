@@ -54,30 +54,34 @@ namespace Card
 
         }
 
-        public Card GenerateCard()
+        public Card GenerateCard(int amount = 52) //Valgfri mængde kort, standard = 52
         {
-            if (currentCard < deck.Length)
+            if (currentCard < amount)
                 return deck[currentCard++];
             else
                 return null;
         }
+
+        public void Deal(int Players)
+        {
+
+            
+
+            for(int i = 0; i < Players; i++)
+            {
+
+            }                      
+        }
     }
 
-    public class StartHand
-    {
-       
-        
-        public List<List<string>> Hands = new List<List<string>>();
-
-
-    }
-
-    public class Builder
+    public class SetupBoard
     {
         public static void Main()
         {
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
+            
+            
 
             for (int i = 0; i < Deck.cardAmount; i++)
             {
