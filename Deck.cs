@@ -62,19 +62,6 @@ namespace Poker
                 return null;
         }
     }
-    class Program
-    {
-        public void Deal(int Players)
-        {
-
-            
-
-            for(int i = 0; i < Players; i++)
-            {
-
-            }                      
-        }
-    }
 
     public class SetupBoard
     {
@@ -83,8 +70,6 @@ namespace Poker
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
             
-            
-
             for (int i = 0; i < Deck.cardAmount; i++)
             {
                 Console.Write("{0,-20}", mainDeck.GenerateCard());
