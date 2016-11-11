@@ -63,9 +63,18 @@ namespace Poker
                 return null;
         }
 
-        public void Hand()
+        public Card[,] Hand(int playerAmount)
         {
+            Card[,] hands = new Card[playerAmount, 2];
 
+            for(int i = 0; i < playerAmount; i++)
+            {
+                for(int j = 0; j < 2; j++)
+                {
+                    hands[i, j] = GenerateCard(8);
+                }
+            }
+            return hands;
         }
 
 
@@ -75,6 +84,25 @@ namespace Poker
     {
         public static void Main()
         {
+
+            Deck mainDeck = new Deck();
+            mainDeck.Shuffle();
+            Card[,] hands = mainDeck.Hand(4);
+
+            
+            for (int i = 0; i < Deck.cardAmount; i++)
+            {
+                Console.Write("{0,-20}", mainDeck.GenerateCard());
+                if ((i + 1) % 4 == 0)
+                    Console.WriteLine();
+            }
+            Console.ReadKey();
+            foreach(Card element in hands)
+            {
+                Console.WriteLine(element);
+            }
+            Console.ReadKey();
+            /*
             Console.WriteLine("1. Join Game\n2. Host Game");
             Int32 pick;
             while (true)
@@ -137,6 +165,7 @@ namespace Poker
 
             Console.WriteLine("Program Over, remember to delete me");
             Console.ReadLine();
+            */
         }
     }
 
