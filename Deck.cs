@@ -77,7 +77,9 @@ namespace Poker
             return hands;
         }
 
-
+    public class Player
+    {
+        
     }
 
     public class Program
