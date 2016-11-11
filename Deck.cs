@@ -117,6 +117,7 @@ namespace Poker
                     continue;
                 }
             }
+            Console.Clear();
             IPAddress ip;
             Client connection = new Client();
             switch (pick)
@@ -124,15 +125,27 @@ namespace Poker
                 case 1:
                     while (true)
                     {
-                        Console.WriteLine("Enter IP of game host: ");
+                        Console.WriteLine("X: Back to menu\nEnter IP of game host: ");
                         string ipstring = Console.ReadLine();
-
+                        Console.Clear();
                         if (IPAddress.TryParse(ipstring, out ip))
                         {
                             break;
                         }
                     }
-                    connection.connect(ip, 31415);
+                    try
+                    {
+                        Console.WriteLine("Attempting Connection...");
+                        connection.connect(ip, 31415);
+                    }
+                    catch (SocketException)
+                    {
+                        Console.WriteLine("Connection timed out. Server is unavailable.\nPress ANY key to continue");
+                        Console.ReadKey();
+                        Console.Clear();
+                        goto case 1;
+                    }
+
 
 
 
