@@ -36,7 +36,7 @@ namespace Poker
             String[] suits = { "spades", "hearts", "clubs", "diamonds" };
             deck = new Card[cardAmount];
             currentCard = 0;
-            ranCard = new Random(); 
+            ranCard = new Random();
             for (int count = 0; count < deck.Length; count++)
             {//Creates deck
                 deck[count] = new Card(faces[count % 13], suits[count / 13]);
@@ -75,67 +75,15 @@ namespace Poker
     {
         public static void Main()
         {
-            Console.WriteLine("1. Join Game\n2. Host Game");
-            Int32 pick;
-            while (true)
+            Deck mainDeck = new Deck();
+            mainDeck.Shuffle();
+
+            for (int i = 0; i < Deck.cardAmount; i++)
             {
-                try
-                {
-                    pick = Convert.ToInt32(Console.ReadLine());
-                    break;
-                }
-                catch
-                {
-                    continue;
-                }
+                Console.Write("{0,-20}", mainDeck.GenerateCard());
+                if ((i + 1) % 4 == 0)
+                    Console.WriteLine();
             }
-            IPAddress ip;
-            Client connection = new Client();
-            switch (pick)
-            {
-                case 1:
-                    while (true)
-                    {
-                        Console.WriteLine("Enter IP of game host: ");
-                        string ipstring = Console.ReadLine();
-
-                        if (IPAddress.TryParse(ipstring, out ip))
-                        {
-                            break;
-                        }
-                    }
-                    connection.connect(ip, 31415);
-
-
-
-
-
-
-
-                    break;
-                case 2:
-                    Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
-                    while (true)
-                    {
-                        Console.WriteLine("Enter IP to host on: ");
-                        string ipstring = Console.ReadLine();
-
-                        if (IPAddress.TryParse(ipstring, out ip))
-                        {
-                            break;
-                        }
-                        Console.Clear();
-                    }
-                    Server server = new Server(ip, 31415);
-
-
-
-
-                    break;
-            }
-
-
-            Console.WriteLine("Program Over, remember to delete me");
             Console.ReadLine();
         }
     }
@@ -222,9 +170,9 @@ namespace Poker
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public void connect(IPAddress ip, Int32 port)
+        public void connect(string ip, Int32 port)
         {
-            s.Connect(ip, port);
+            s.Connect(IPAddress.Parse(ip), port);
         }
 
         public void sendString(string message)
