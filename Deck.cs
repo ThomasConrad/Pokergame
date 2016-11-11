@@ -61,11 +61,9 @@ namespace Poker
             else
                 return null;
         }
-<<<<<<< HEAD
     }
     class Program
-=======
-
+    {
         public void Deal(int Players)
         {
 
@@ -79,7 +77,6 @@ namespace Poker
     }
 
     public class SetupBoard
->>>>>>> refs/remotes/origin/master
     {
         public static void Main()
         {
