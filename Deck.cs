@@ -54,20 +54,39 @@ namespace Poker
 
         }
 
-        public Card GenerateCard()
+        public Card GenerateCard(int amount = 52) //Valgfri mængde kort, standard = 52
         {
-            if (currentCard < deck.Length)
+            if (currentCard < amount)
                 return deck[currentCard++];
             else
                 return null;
         }
+<<<<<<< HEAD
     }
     class Program
+=======
+
+        public void Deal(int Players)
+        {
+
+            
+
+            for(int i = 0; i < Players; i++)
+            {
+
+            }                      
+        }
+    }
+
+    public class SetupBoard
+>>>>>>> refs/remotes/origin/master
     {
         public static void Main()
         {
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
+            
+            
 
             for (int i = 0; i < Deck.cardAmount; i++)
             {
