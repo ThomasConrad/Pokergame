@@ -37,8 +37,10 @@ namespace Poker
             deck = new Card[cardAmount];
             currentCard = 0;
             ranCard = new Random();
-            for (int count = 0; count < deck.Length; count++) //Creates deck
+            for (int count = 0; count < deck.Length; count++)
+            {//Creates deck
                 deck[count] = new Card(faces[count % 13], suits[count / 13]);
+            }
         }
 
         public void Shuffle()
@@ -51,7 +53,6 @@ namespace Poker
                 deck[i] = deck[j]; //shuffles a random card to ilterating spot
                 deck[j] = temp; //shuffles ilterating card to random spot
             }
-
         }
 
         public Card GenerateCard(int amount = 52) //Valgfri mængde kort, standard = 52
