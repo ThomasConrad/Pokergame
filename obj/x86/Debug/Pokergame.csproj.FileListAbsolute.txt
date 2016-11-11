@@ -3,3 +3,8 @@ C:\Users\bloby\Documents\GitHub\Pokergame\bin\Debug\ConsoleApplication.exe
 C:\Users\bloby\Documents\GitHub\Pokergame\bin\Debug\ConsoleApplication.pdb
 C:\Users\bloby\Documents\GitHub\Pokergame\obj\x86\Debug\ConsoleApplication.exe
 C:\Users\bloby\Documents\GitHub\Pokergame\obj\x86\Debug\ConsoleApplication.pdb
+C:\Users\KristianSofus\Documents\GitHub\Pokergame\obj\x86\Debug\ConsoleApplication.exe
+C:\Users\KristianSofus\Documents\GitHub\Pokergame\obj\x86\Debug\ConsoleApplication.pdb
+C:\Users\KristianSofus\Documents\GitHub\Pokergame\bin\Debug\ConsoleApplication.exe
+C:\Users\KristianSofus\Documents\GitHub\Pokergame\bin\Debug\ConsoleApplication.pdb
+C:\Users\KristianSofus\Documents\GitHub\Pokergame\obj\x86\Debug\Pokergame.csprojResolveAssemblyReference.cache

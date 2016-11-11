@@ -64,7 +64,6 @@ namespace Poker
     }
     class Program
     {
-        /*
         public static void Main()
         {
             Deck mainDeck = new Deck();
@@ -76,20 +75,6 @@ namespace Poker
                 if ((i + 1) % 4 == 0)
                     Console.WriteLine();
             }
-            Console.ReadLine();
-        }
-        */
-        static void Main(string[] args)
-        {
-            Server testserver = new Server(NetTools.getLocalIP(), 7777);
-            Client testclient = new Client();
-
-            testserver.listen();
-            testclient.connect("127.0.0.1", 7777);
-            testserver.acceptPlayer(0);
-            testclient.sendInt(10);
-            Int32 a = testserver.receiveInt(0);
-            Console.WriteLine(a.ToString());
             Console.ReadLine();
         }
     }
@@ -153,16 +138,16 @@ namespace Poker
 
         public Int32 receiveInt(Int32 slot)
         {
-            byte[] bytes = new byte[2048];
+            byte[] bytes = new byte[64];
             players[slot].Receive(bytes);
-            return BitConverter.ToInt32(bytes, 0);
+            return Convert.ToInt32(encoder.GetString(bytes));
         }
 
-        public string receiveString(Int32 slot)
+        public string receiveString(Int32 slot, Int32 length = 64)
         {
-            byte[] bytes = new byte[2048];
+            byte[] bytes = new byte[length];
             players[slot].Receive(bytes);
-            return BitConverter.ToString(bytes, 0);
+            return encoder.GetString(bytes);
         }
     }
 
@@ -190,18 +175,18 @@ namespace Poker
             s.Send(encoder.GetBytes(message.ToString()));
         }
 
-        public static Int32 receiveInt(Socket s)
+        public Int32 receiveInt(Socket s)
         {
-            byte[] bytes = new byte[2048];
+            byte[] bytes = new byte[1024];
             s.Receive(bytes);
-            return BitConverter.ToInt32(bytes, 0);
+            return Convert.ToInt32(encoder.GetString(bytes));
         }
 
-        public static string receiveString(Socket s)
+        public string receiveString(Socket s, Int32 length = 64)
         {
-            byte[] bytes = new byte[2048];
+            byte[] bytes = new byte[length];
             s.Receive(bytes);
-            return BitConverter.ToString(bytes, 0);
+            return encoder.GetString(bytes);
         }
     }
 }
