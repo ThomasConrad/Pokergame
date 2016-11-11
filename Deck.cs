@@ -40,7 +40,7 @@ namespace Poker
             String[] suits = { "spades", "hearts", "clubs", "diamonds" };
             deck = new Card[cardAmount];
             currentCard = 0;
-            ranCard = new Random(); 
+            ranCard = new Random();
             for (int count = 0; count < deck.Length; count++)
             {//Creates deck
                 deck[count] = new Card(faces[count % 13], suits[count / 13]);
@@ -54,7 +54,7 @@ namespace Poker
             {
                 int j = ranCard.Next(cardAmount);
                 Card temp = deck[i];
-                deck[i] = deck[j]; //shuffles a random card to ilterating spot
+                deck[i] = deck[j]; //shuffles a random card to iterating spot
                 deck[j] = temp; //shuffles ilterating card to random spot
             }
         }
@@ -71,15 +71,16 @@ namespace Poker
         {
             Card[,] hands = new Card[playerAmount, 2];
 
-            for(int i = 0; i < playerAmount; i++)
+            for (int i = 0; i < playerAmount; i++)
             {
-                for(int j = 0; j < 2; j++)
+                for (int j = 0; j < 2; j++)
                 {
                     hands[i, j] = GenerateCard(8);
                 }
             }
             return hands;
         }
+    }
 
     public class Player
     {
@@ -153,26 +154,18 @@ namespace Poker
 
             //Menu options
             Console.WriteLine("1. Join Game\n2. Host Game");
-            Int32 pick;
-            while (true)
-            {
-                try
-                {
-                    pick = Convert.ToInt32(Console.ReadLine());
-                    break;
-                }
-                catch
-                {
-                    continue;
-                }
-            }
+            string pick;
+            pick = Console.ReadLine();
             Console.Clear();
             IPAddress ip;
-            Client connection = new Client();
+            Console.WriteLine("Pick a name: ");
+            string name = Console.ReadLine();
+            Console.ReadLine();
+            Client connection = new Client(name);
             switch (pick)
             {
-                //Hosting game
-                case 1:
+                //Joining game
+                case "1":
                     while (true)
                     {
                         Console.WriteLine("X: Back to menu\nEnter IP of game host: ");
@@ -193,7 +186,7 @@ namespace Poker
                         Console.WriteLine("Connection timed out. Server is unavailable.\nPress ANY key to continue");
                         Console.ReadKey();
                         Console.Clear();
-                        goto case 1;
+                        goto case "1";
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
@@ -205,24 +198,44 @@ namespace Poker
 
 
                     break;
-                //Joining game
-                case 2:
+                //Hosting game
+                case "2":
                     Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
                     while (true)
                     {
                         Console.WriteLine("Enter IP to host on: ");
                         string ipstring = Console.ReadLine();
-
                         if (IPAddress.TryParse(ipstring, out ip))
                         {
                             break;
                         }
-                        Console.Clear();
                     }
                     Server server = new Server(ip, 31415);
                     server.listen();
-                    server.acceptPlayer(0);
-                    server.sendString(Console.ReadLine(),0);
+                    while (true)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Server is running! Press ENTER to update player list.");
+                        pick = Console.ReadLine();
+                        if (pick == "")
+                        {
+                            for (Int32 s = 0; s<server.maxplayers; s++)
+                            {
+                                if (server.sockets[s] == null)
+                                {
+                                    try
+                                    {
+                                        server.acceptPlayer(s);
+                                        Console.WriteLine(server.sockets);
+                                    }
+                                    catch (SocketException) { }
+                                }
+
+                            }
+                        }
+
+                    }
+                    
 
 
 
@@ -260,7 +273,9 @@ namespace Poker
     {
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
         public Int32 playerCount = 0;
-        public Socket[] players = new Socket[8];
+        public Socket[] sockets = new Socket[8];
+        public Int32 maxplayers = 8;
+        public Int32 initialMoney = 1000;
         Socket s;
         
         public Server(IPAddress ip, Int32 port)
@@ -272,7 +287,7 @@ namespace Poker
 
         public void acceptPlayer(Int32 slot)
         {
-            players[slot] = s.Accept();
+            sockets[slot] = s.Accept();
             playerCount++;
         }
 
@@ -283,31 +298,31 @@ namespace Poker
 
         public void closePlayer(Int32 slot)
         {
-            players[slot].Close();
+            sockets[slot].Close();
             playerCount--;
         }
 
         public void sendString(string message, Int32 slot)
         {
-            players[slot].Send(encoder.GetBytes(message));
+            sockets[slot].Send(encoder.GetBytes(message));
         }
 
         public void sendInt(Int32 message, Int32 slot)
         {
-            players[slot].Send(encoder.GetBytes(message.ToString()));
+            sockets[slot].Send(encoder.GetBytes(message.ToString()));
         }
 
         public Int32 receiveInt(Int32 slot)
         {
             byte[] bytes = new byte[64];
-            players[slot].Receive(bytes);
+            sockets[slot].Receive(bytes);
             return Convert.ToInt32(encoder.GetString(bytes));
         }
 
         public string receiveString(Int32 slot, Int32 length = 64)
         {
             byte[] bytes = new byte[length];
-            players[slot].Receive(bytes);
+            sockets[slot].Receive(bytes);
             return encoder.GetString(bytes);
         }
     }
@@ -316,7 +331,9 @@ namespace Poker
     {
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
         Socket s;
-        public Client()
+        public string name;
+
+        public Client(string name = "Trump")
         {
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
