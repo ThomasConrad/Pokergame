@@ -4,8 +4,11 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 
+
+//Let's fucking go yo
 namespace Poker
 {
+
     public class Card
     {
         private string face;
@@ -23,6 +26,7 @@ namespace Poker
         }
     }
 
+    //Easy way to do a collection of cards
     public class Deck
     {
         private Card[] deck;
@@ -147,7 +151,7 @@ namespace Poker
 
 
 
-
+            //Menu options
             Console.WriteLine("1. Join Game\n2. Host Game");
             Int32 pick;
             while (true)
@@ -167,6 +171,7 @@ namespace Poker
             Client connection = new Client();
             switch (pick)
             {
+                //Hosting game
                 case 1:
                     while (true)
                     {
@@ -190,7 +195,8 @@ namespace Poker
                         Console.Clear();
                         goto case 1;
                     }
-                    Console.WriteLine(connection.receiveString());
+                    Console.Clear();
+                    Console.WriteLine("Connection successful! Waiting for host to start.");
 
 
 
@@ -199,6 +205,7 @@ namespace Poker
 
 
                     break;
+                //Joining game
                 case 2:
                     Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
                     while (true)
@@ -215,14 +222,16 @@ namespace Poker
                     Server server = new Server(ip, 31415);
                     server.listen();
                     server.acceptPlayer(0);
-                    server.sendString("knock knock",0);
+                    server.sendString(Console.ReadLine(),0);
 
 
 
 
                     break;
             }
-
+            ///////////////////////////////////
+            //REMEMBER TO DELETE THIS SECTION//
+            ///////////////////////////////////
 
             Console.WriteLine("Program Over, remember to delete me");
             Console.ReadLine();
