@@ -102,7 +102,50 @@ namespace Poker
                 Console.WriteLine(element);
             }
             Console.ReadKey();
-            /*
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             Console.WriteLine("1. Join Game\n2. Host Game");
             Int32 pick;
             while (true)
@@ -178,7 +221,7 @@ namespace Poker
 
             Console.WriteLine("Program Over, remember to delete me");
             Console.ReadLine();
-            */
+            
         }
     }
 
