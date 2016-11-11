@@ -188,7 +188,7 @@ namespace Poker
                         Console.Clear();
                         goto case 1;
                     }
-
+                    Console.WriteLine(connection.receiveString());
 
 
 
@@ -211,6 +211,9 @@ namespace Poker
                         Console.Clear();
                     }
                     Server server = new Server(ip, 31415);
+                    server.listen();
+                    server.acceptPlayer(0);
+                    server.sendString("knock knock",0);
 
 
 
@@ -322,14 +325,14 @@ namespace Poker
             s.Send(encoder.GetBytes(message.ToString()));
         }
 
-        public Int32 receiveInt(Socket s)
+        public Int32 receiveInt()
         {
             byte[] bytes = new byte[1024];
             s.Receive(bytes);
             return Convert.ToInt32(encoder.GetString(bytes));
         }
 
-        public string receiveString(Socket s, Int32 length = 64)
+        public string receiveString(Int32 length = 64)
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
