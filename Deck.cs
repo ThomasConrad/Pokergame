@@ -65,13 +65,13 @@ namespace Poker
 
     }
 
-    public class SetupBoard
+    public class Program
     {
         public static void Main()
         {
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
-            
+
             for (int i = 0; i < Deck.cardAmount; i++)
             {
                 Console.Write("{0,-20}", mainDeck.GenerateCard());
@@ -81,6 +81,7 @@ namespace Poker
             Console.ReadLine();
         }
     }
+
     public static class NetTools
     {
         public static IPAddress getLocalIP()
