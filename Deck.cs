@@ -62,6 +62,11 @@ namespace Poker
                 return null;
         }
 
+        public void Hand()
+        {
+
+        }
+
 
     }
 
