@@ -11,10 +11,10 @@ namespace Poker
 
     public class Card
     {
-        private string face;
-        private string suit;
+        private Int32 face;
+        private Int32 suit;
 
-        public Card(string cardFace, string cardSuit)
+        public Card(Int32 cardFace, Int32 cardSuit)
         {
             face = cardFace;
             suit = cardSuit;
@@ -22,7 +22,7 @@ namespace Poker
 
         public override string ToString()
         {
-            return face + " of " + suit;
+            return face + " " + suit;
         }
     }
 
@@ -36,13 +36,19 @@ namespace Poker
 
         public Deck()
         {
+
+            Int32[] faces = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
+            Int32[] suits = { 1, 2, 3, 4 };
+
+            /*
             String[] faces = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
             String[] suits = { "spades", "hearts", "clubs", "diamonds" };
+            */
             deck = new Card[cardAmount];
             currentCard = 0;
             ranCard = new Random();
-            for (int count = 0; count < deck.Length; count++)
-            {//Creates deck
+            for (int count = 0; count < deck.Length; count++)//Creates deck
+            {
                 deck[count] = new Card(faces[count % 13], suits[count / 13]);
             }
         }
@@ -55,7 +61,7 @@ namespace Poker
                 int j = ranCard.Next(cardAmount);
                 Card temp = deck[i];
                 deck[i] = deck[j]; //shuffles a random card to iterating spot
-                deck[j] = temp; //shuffles ilterating card to random spot
+                deck[j] = temp; //shuffles iterating card to random spot
             }
         }
 
@@ -75,7 +81,7 @@ namespace Poker
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    hands[i, j] = GenerateCard(8);
+                    hands[i, j] = GenerateCard(playerAmount*2);
                 }
             }
             return hands;
@@ -84,7 +90,12 @@ namespace Poker
 
     public class Player
     {
+        public Int32 currency;
         
+        public Player(Int32 initialMoney)
+        {
+            currency = initialMoney;
+        } 
     }
 
     public class Program
@@ -94,9 +105,9 @@ namespace Poker
 
             Deck mainDeck = new Deck();
             mainDeck.Shuffle();
-            Card[,] hands = mainDeck.Hand(4);
+            Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
 
-            
+            /*
             for (int i = 0; i < Deck.cardAmount; i++)
             {
                 Console.Write("{0,-20}", mainDeck.GenerateCard());
@@ -109,8 +120,8 @@ namespace Poker
                 Console.WriteLine(element);
             }
             Console.ReadKey();
+            */
             
-
 
 
 
@@ -236,7 +247,6 @@ namespace Poker
 
                     }
                     
-
 
 
 
