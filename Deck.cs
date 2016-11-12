@@ -102,14 +102,7 @@ namespace Poker
     {
         public static void Main()
         {
-            Deck mainDeck = new Deck();
-            mainDeck.Shuffle();
-            Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
-
-            string hando = hands[1, 1].ToString();
-            string[] s0 = hando.Split(',');
-            Console.WriteLine("{0}", string.Join(", ", s0));
-            Console.ReadKey();
+            
             /*
             for (int i = 0; i < Deck.cardAmount; i++)
             {
@@ -119,11 +112,7 @@ namespace Poker
             }
             Console.ReadKey();
             */
-            foreach (Card element in hands)
-            {
-                Console.WriteLine(element);
-            }
-            Console.ReadKey();
+            
             
             
 
@@ -175,7 +164,7 @@ namespace Poker
             IPAddress ip;
             Console.WriteLine("Pick a name: ");
             string name = Console.ReadLine();
-            Console.ReadLine();
+            //Console.ReadLine();
             Client connection = new Client(name);
             switch (pick)
             {
@@ -212,9 +201,26 @@ namespace Poker
 
 
 
-                    break;
+                break;
                 //Hosting game
                 case "2":
+                    Deck mainDeck = new Deck();
+                    mainDeck.Shuffle();
+                    Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
+
+                    /*
+                    string hando = hands[1, 1].ToString();
+                    string[] s0 = hando.Split(',');
+                    Console.WriteLine("{0}", string.Join(" ", s0));
+                    Console.ReadKey();
+                    foreach (Card element in hands)
+                    {
+                        Console.WriteLine(element);
+                    }
+                    Console.ReadKey();
+                    */
+
+
                     Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
                     while (true)
                     {
@@ -249,12 +255,9 @@ namespace Poker
                             }
                         }
 
-                    }
-                    
-
-
-
                     break;
+                    }
+                break;
             }
             ///////////////////////////////////
             //REMEMBER TO DELETE THIS SECTION//
