@@ -8,6 +8,7 @@ using System.Net.Sockets;
 //Let's fucking go yo
 namespace Poker
 {
+    
 
     public class Card
     {
@@ -22,13 +23,15 @@ namespace Poker
 
         public override string ToString()
         {
-            return face + " " + suit;
+            return face + "," + suit;
         }
     }
 
     //Easy way to do a collection of cards
     public class Deck
     {
+        String[] faceName = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+        String[] suit = { "spades", "hearts", "clubs", "diamonds" };
         private Card[] deck;
         private int currentCard;
         public const int cardAmount = 52;
@@ -40,10 +43,7 @@ namespace Poker
             Int32[] faces = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
             Int32[] suits = { 1, 2, 3, 4 };
 
-            /*
-            String[] faces = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
-            String[] suits = { "spades", "hearts", "clubs", "diamonds" };
-            */
+           
             deck = new Card[cardAmount];
             currentCard = 0;
             ranCard = new Random();
@@ -102,11 +102,7 @@ namespace Poker
     {
         public static void Main()
         {
-
-            Deck mainDeck = new Deck();
-            mainDeck.Shuffle();
-            Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
-
+            
             /*
             for (int i = 0; i < Deck.cardAmount; i++)
             {
@@ -115,12 +111,9 @@ namespace Poker
                     Console.WriteLine();
             }
             Console.ReadKey();
-            foreach(Card element in hands)
-            {
-                Console.WriteLine(element);
-            }
-            Console.ReadKey();
             */
+            
+            
             
 
 
@@ -171,7 +164,7 @@ namespace Poker
             IPAddress ip;
             Console.WriteLine("Pick a name: ");
             string name = Console.ReadLine();
-            Console.ReadLine();
+            //Console.ReadLine();
             Client connection = new Client(name);
             switch (pick)
             {
@@ -208,9 +201,26 @@ namespace Poker
 
 
 
-                    break;
+                break;
                 //Hosting game
                 case "2":
+                    Deck mainDeck = new Deck();
+                    mainDeck.Shuffle();
+                    Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
+
+                    /*
+                    string hando = hands[1, 1].ToString();
+                    string[] s0 = hando.Split(',');
+                    Console.WriteLine("{0}", string.Join(" ", s0));
+                    Console.ReadKey();
+                    foreach (Card element in hands)
+                    {
+                        Console.WriteLine(element);
+                    }
+                    Console.ReadKey();
+                    */
+
+
                     Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
                     while (true)
                     {
@@ -245,12 +255,9 @@ namespace Poker
                             }
                         }
 
-                    }
-                    
-
-
-
                     break;
+                    }
+                break;
             }
             ///////////////////////////////////
             //REMEMBER TO DELETE THIS SECTION//
