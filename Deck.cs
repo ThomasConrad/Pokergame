@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 
 
-//Let's fucking go yo
+//Let's fucking go yo!
 namespace Poker
 {
     
@@ -162,6 +162,7 @@ namespace Poker
             pick = Console.ReadLine();
             Console.Clear();
             IPAddress ip;
+            Int32 playeramount;
             Console.WriteLine("Pick a name: ");
             string name = Console.ReadLine();
             //Console.ReadLine();
@@ -221,42 +222,58 @@ namespace Poker
                     */
 
 
-                    Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
+                    //Set IP address to host on
                     while (true)
                     {
+                        Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
                         Console.WriteLine("Enter IP to host on: ");
                         string ipstring = Console.ReadLine();
+                        Console.Clear();
                         if (IPAddress.TryParse(ipstring, out ip))
                         {
                             break;
                         }
                     }
+
+                    //Set player amount
+                    while (true)
+                    {
+                        Console.WriteLine("Enter amount of players (max 16): ");
+                        string setplayers = Console.ReadLine();
+                        Console.Clear();
+                        try
+                        {
+                            playeramount = Convert.ToInt32(setplayers);
+                            if (playeramount > 16 || playeramount < 2)
+                            {
+                                continue;
+                            }
+                            break;
+                        }
+                        catch (FormatException)
+                        {
+                            continue;
+                        }
+                    }
+
+                    //Accepts players, by looping until everyone is in.
+                    //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
                     Server server = new Server(ip, 31415);
                     server.listen();
                     while (true)
                     {
                         Console.Clear();
-                        Console.WriteLine("Server is running! Press ENTER to update player list.");
-                        pick = Console.ReadLine();
-                        if (pick == "")
+                        if (playeramount == server.players)
                         {
-                            for (Int32 s = 0; s<server.maxplayers; s++)
-                            {
-                                if (server.sockets[s] == null)
-                                {
-                                    try
-                                    {
-                                        server.acceptPlayer(s);
-                                        Console.WriteLine(server.sockets);
-                                    }
-                                    catch (SocketException) { }
-                                }
-
-                            }
+                            break;
                         }
-
-                    break;
+                        Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
+                        //Print names here, we need some way to receive and store them, but that's not important right now.
+                        server.acceptPlayer(server.players);
                     }
+                    //After this point, all players should be in the game, in theory. Except the host, that still needs to be set up.
+
+
                 break;
             }
             ///////////////////////////////////
@@ -289,9 +306,8 @@ namespace Poker
     public class Server
     {
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
-        public Int32 playerCount = 0;
         public Socket[] sockets = new Socket[8];
-        public Int32 maxplayers = 8;
+        public Int32 players = 0;
         public Int32 initialMoney = 1000;
         Socket s;
         
@@ -305,18 +321,12 @@ namespace Poker
         public void acceptPlayer(Int32 slot)
         {
             sockets[slot] = s.Accept();
-            playerCount++;
+            players++;
         }
 
         public void listen()
         {
             s.Listen(10);
-        }
-
-        public void closePlayer(Int32 slot)
-        {
-            sockets[slot].Close();
-            playerCount--;
         }
 
         public void sendString(string message, Int32 slot)
