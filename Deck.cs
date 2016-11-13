@@ -223,8 +223,7 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    Console.WriteLine(connection.receiveString());
-                    Console.WriteLine(connection.receiveString()); //skip this shit. kk pls fix
+                    for (int i = 0; i < 2; i++) { Console.WriteLine(connection.receiveCard()); }
 
 
 
@@ -337,8 +336,7 @@ namespace Poker
                     {
                         for (int j = 0; j < 2; j++)
                         {
-                            string tempCard = Convert.ToString(hands[i, j]);
-                            server.sendString(tempCard, i);
+                            server.sendCard(hands[i, j], i);
                         }
                     }
 
@@ -528,12 +526,17 @@ namespace Poker
             return encoder.GetString(bytes);
         }
 
-        public string receiveCard(Int32 length = 64)
+        public Card receiveCard(Int32 length = 64)
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
             Thread.Sleep(100);
-            return encoder.GetString(bytes);
+            string recievedCardString = encoder.GetString(bytes);
+            string[] recievedCardStringArray = recievedCardString.Split(',');
+            Int32[] recievedCardInts = Array.ConvertAll(recievedCardStringArray, int.Parse);
+
+            Card recievedCard = new Card(recievedCardInts[0], recievedCardInts[1]);
+            return recievedCard;
         }
     }
 }
