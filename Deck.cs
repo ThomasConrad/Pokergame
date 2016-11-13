@@ -126,7 +126,7 @@ namespace Poker
             string hand0 = element.ToString();
             string[] hand1 = hand0.Split(',');
             Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
-            return faceNames[myInts[0] - 1] + " of " + suitNames[myInts[1] - 1];
+            return faceNames[myInts[0]-1] + " of " + suitNames[myInts[1]-1];
         }
 
         public static void Main()
@@ -224,8 +224,16 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    for (int i = 0; i < 2; i++) { Console.WriteLine(CardToName(connection.receiveCard())); }
+                    Console.Clear();
+                    Console.WriteLine("Your hand:");
 
+                    string[] tempCard = new string[2];
+                    for (int i = 0; i < 2; i++)
+                    {
+                        tempCard[i] = CardToName(connection.receiveCard());
+                    }
+                    Console.WriteLine(tempCard[0] + " and " + tempCard[1]);
+                    Console.ReadLine();
 
                     
 
@@ -459,6 +467,7 @@ namespace Poker
         public void sendCard(Card message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message.ToString()));
+            Thread.Sleep(50);
         }
 
         public void sendStringToAll(string message)
@@ -526,7 +535,6 @@ namespace Poker
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
-            Thread.Sleep(100);
             return encoder.GetString(bytes);
         }
 
@@ -534,7 +542,6 @@ namespace Poker
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
-            Thread.Sleep(100);
             string recievedCardString = encoder.GetString(bytes);
             string[] recievedCardStringArray = recievedCardString.Split(',');
             Int32[] recievedCardInts = Array.ConvertAll(recievedCardStringArray, int.Parse);
