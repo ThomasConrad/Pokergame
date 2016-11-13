@@ -75,7 +75,7 @@ namespace Poker
                 return null;
         }
 
-        public Card[,] Hand(int playerAmount)
+        public Card[,] PlayerHands(int playerAmount)
         {
             Card[,] hands = new Card[playerAmount, 2];
 
@@ -87,6 +87,16 @@ namespace Poker
                 }
             }
             return hands;
+        }
+        public Card[] Hand(int playerNum, Card[,] hands)
+        {
+            Card[] tempHand = new Card[2];
+
+            for(int i = 0; i < 2;i++)
+            {
+                tempHand[i] = hands[playerNum-1, i];
+            }
+            return tempHand;
         }
     }
 
@@ -198,10 +208,7 @@ namespace Poker
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
                     Console.WriteLine(connection.receiveString());
-                    Console.ReadLine();
                     Console.WriteLine(connection.receiveString()); //skip this shit. kk pls fix
-
-
 
 
 
@@ -230,19 +237,17 @@ namespace Poker
                 case "2": //HOST
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
-                    Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
 
                     /*
                     string hando = hands[1, 1].ToString();
                     string[] s0 = hando.Split(',');
                     Console.WriteLine("{0}", string.Join(" ", s0));
                     Console.ReadKey();
-                    foreach (Card element in hands)
-                    {
-                        Console.WriteLine(element);
-                    }
-                    Console.ReadKey();
+                    
                     */
+
+                   
+                    
 
 
                     //Set IP address to host on
@@ -304,11 +309,12 @@ namespace Poker
                         server.acceptPlayer(server.players);
                         
                     }
-                    //After this point, all players should be in the game, in theory. Except the host, that still needs to be set up.
+
 
                     //server.sendStringToAll("Server ready. Press enter to begin.");
                     //connection.receiveString();
-                    for(int i = 0; i < playeramount; i++) //Never gets through, kk pls fix.
+                    Card[,] hands = mainDeck.PlayerHands(server.players);
+                    for (int i = 0; i < playeramount; i++) 
                     {
                         for(int j = 0; j < 2; j++)
                         {
@@ -316,8 +322,20 @@ namespace Poker
                             server.sendString(tempCard, i);
                         }
                     }
-
-                break;
+                    foreach (var element in mainDeck.Hand(1, hands))
+                        Console.WriteLine(element);
+                    int counter = 0;
+                    foreach (Card element in hands)
+                    {
+                        if(counter % 2 == 0)
+                        {
+                            Console.WriteLine("Player {0}'s hand", counter/2+1);
+                        }
+                        Console.WriteLine(element);
+                        counter++;
+                    }
+                    Console.ReadKey();
+                    break;
             }
             ///////////////////////////////////
             //REMEMBER TO DELETE THIS SECTION//
@@ -471,6 +489,7 @@ namespace Poker
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
+            Thread.Sleep(100);
             return encoder.GetString(bytes);
         }
     }
