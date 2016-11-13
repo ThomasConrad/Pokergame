@@ -225,7 +225,7 @@ namespace Poker
                     while (true)
                     {
                         Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
-                        Console.WriteLine("Enter IP to host on: ");
+                        Console.WriteLine("Enter IP to host on, 'local' for local ip: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
                         if(ipstring == "local")
