@@ -32,7 +32,7 @@ namespace Poker
     //Easy way to do a collection of cards
     public class Deck
     {
-        public String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+        public String[] faceName = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
         public String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
         private Card[] deck;
         private int currentCard;
