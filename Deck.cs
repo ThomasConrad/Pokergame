@@ -322,7 +322,17 @@ namespace Poker
         {
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint endpoint = new IPEndPoint(ip, port);
-            s.Bind(endpoint);
+            try
+            {
+                s.Bind(endpoint);
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("The IP you inserted is invalid. The program will now exit");
+                Console.ReadKey();
+                System.Environment.Exit(1);
+            }
+            
         }
 
         public void acceptPlayer(Int32 slot)
