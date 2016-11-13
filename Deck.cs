@@ -198,6 +198,7 @@ namespace Poker
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
                     Console.WriteLine(connection.receiveString());
+                    Console.ReadLine();
 
 
 
