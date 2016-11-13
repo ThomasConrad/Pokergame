@@ -33,8 +33,6 @@ namespace Poker
     //Easy way to do a collection of cards
     public class Deck
     {
-        public String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
-        public String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
         private Card[] deck;
         private int currentCard;
         public const int cardAmount = 52;
@@ -106,13 +104,6 @@ namespace Poker
             Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
             return myInts;
         }
-        public string CardToName(Card element)
-        {
-            string hand0 = element.ToString();
-            string[] hand1 = hand0.Split(',');
-            Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
-            return faceNames[myInts[0] - 1] + " of " + suitNames[myInts[1] - 1];
-        }
     }
 
     public class Player
@@ -128,6 +119,16 @@ namespace Poker
 
     public class Program
     {
+        static string CardToName(Card element)
+        {
+            String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
+            String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+            string hand0 = element.ToString();
+            string[] hand1 = hand0.Split(',');
+            Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
+            return faceNames[myInts[0] - 1] + " of " + suitNames[myInts[1] - 1];
+        }
+
         public static void Main()
         {
 
@@ -223,10 +224,10 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    for (int i = 0; i < 2; i++) { Console.WriteLine(connection.receiveCard()); }
+                    for (int i = 0; i < 2; i++) { Console.WriteLine(CardToName(connection.receiveCard())); }
 
 
-
+                    
 
 
 
@@ -347,7 +348,7 @@ namespace Poker
                     //prints the servers hand
                     foreach (var element in mainDeck.Hand(1, hands))
 
-                        Console.WriteLine(element);
+                        Console.WriteLine(CardToName(element));
 
                     //--------------------------------------
                     //Prints the hands of all players
@@ -359,7 +360,7 @@ namespace Poker
                             Console.WriteLine("Player {0}'s hand", counter / 2 + 1);
                         }
                         //Console.WriteLine(string.Join(",", mainDeck.CardToIntArray(element)));
-                        Console.WriteLine(mainDeck.CardToName(element));
+                        Console.WriteLine(CardToName(element));
                         counter++;
                     }
 
