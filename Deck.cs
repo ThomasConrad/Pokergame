@@ -5,12 +5,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 
 //Let's fucking go yo!
 namespace Poker
 {
-    
+
 
     public class Card
     {
@@ -32,8 +33,8 @@ namespace Poker
     //Easy way to do a collection of cards
     public class Deck
     {
-        String[] faceName = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
-        String[] suit = { "spades", "hearts", "clubs", "diamonds" };
+        public String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+        public String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
         private Card[] deck;
         private int currentCard;
         public const int cardAmount = 52;
@@ -45,7 +46,7 @@ namespace Poker
             Int32[] faces = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
             Int32[] suits = { 1, 2, 3, 4 };
 
-           
+
             deck = new Card[cardAmount];
             currentCard = 0;
             ranCard = new Random();
@@ -75,7 +76,7 @@ namespace Poker
                 return null;
         }
 
-        public Card[,] Hand(int playerAmount)
+        public Card[,] PlayerHands(int playerAmount)
         {
             Card[,] hands = new Card[playerAmount, 2];
 
@@ -83,28 +84,53 @@ namespace Poker
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    hands[i, j] = GenerateCard(playerAmount*2);
+                    hands[i, j] = GenerateCard(playerAmount * 2);
                 }
             }
             return hands;
+        }
+        public Card[] Hand(int playerNum, Card[,] hands)
+        {
+            Card[] tempHand = new Card[2];
+
+            for (int i = 0; i < 2; i++)
+            {
+                tempHand[i] = hands[playerNum - 1, i];
+            }
+            return tempHand;
+        }
+        public Int32[] CardToIntArray(Card element)
+        {
+            string hand0 = element.ToString();
+            string[] hand1 = hand0.Split(',');
+            Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
+            return myInts;
+        }
+        public string CardToName(Card element)
+        {
+            string hand0 = element.ToString();
+            string[] hand1 = hand0.Split(',');
+            Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
+            return faceNames[myInts[0] - 1] + " of " + suitNames[myInts[1] - 1];
         }
     }
 
     public class Player
     {
         public Int32 currency;
-        
+
         public Player(Int32 initialMoney)
         {
             currency = initialMoney;
-        } 
+        }
     }
+
 
     public class Program
     {
         public static void Main()
         {
-            
+
             /*
             for (int i = 0; i < Deck.cardAmount; i++)
             {
@@ -114,9 +140,9 @@ namespace Poker
             }
             Console.ReadKey();
             */
-            
-            
-            
+
+
+
 
 
 
@@ -197,11 +223,7 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-
-                    Console.WriteLine(connection.receiveString());
-                    Console.ReadLine();
-                    Console.WriteLine(connection.receiveString()); //skip this shit. kk pls fix
-
+                    for (int i = 0; i < 2; i++) { Console.WriteLine(connection.receiveCard()); }
 
 
 
@@ -231,19 +253,17 @@ namespace Poker
                 case "2": //HOST
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
-                    Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
 
                     /*
                     string hando = hands[1, 1].ToString();
                     string[] s0 = hando.Split(',');
                     Console.WriteLine("{0}", string.Join(" ", s0));
                     Console.ReadKey();
-                    foreach (Card element in hands)
-                    {
-                        Console.WriteLine(element);
-                    }
-                    Console.ReadKey();
+                    
                     */
+
+
+
 
 
                     //Set IP address to host on
@@ -253,7 +273,7 @@ namespace Poker
                         Console.WriteLine("Enter IP to host on, 'local' for local ip: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
-                        if(ipstring == "local")
+                        if (ipstring == "local")
                         {
                             if (IPAddress.TryParse(NetTools.getLocalIP().ToString(), out ip))
                             {
@@ -303,33 +323,59 @@ namespace Poker
                         Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
                         //Print names here, we need some way to receive and store them, but that's not important right now.
                         server.acceptPlayer(server.players);
-                        
+
                     }
-                    //After this point, all players should be in the game, in theory. Except the host, that still needs to be set up.
+
 
 
                     //server.sendStringToAll("Server ready. Press enter to begin.");
                     //connection.receiveString();
-                    for(int i = 0; i < playeramount; i++) //Never gets through, kk pls fix.
 
+                    Card[,] hands = mainDeck.PlayerHands(server.players);
+
+                    //--------------------------------------
+                    //Send hands to players
+                    for (int i = 0; i < playeramount; i++)
                     {
-                        for(int j = 0; j < 2; j++)
+                        for (int j = 0; j < 2; j++)
                         {
-                            string tempCard = Convert.ToString(hands[i, j]);
-                            server.sendString(tempCard, i);
+                            server.sendCard(hands[i, j], i);
                         }
                     }
 
-                break;
+                    //--------------------------------------
+                    //prints the servers hand
+                    foreach (var element in mainDeck.Hand(1, hands))
+
+                        Console.WriteLine(element);
+
+                    //--------------------------------------
+                    //Prints the hands of all players
+                    int counter = 0;
+                    foreach (Card element in hands)
+                    {
+                        if (counter % 2 == 0)
+                        {
+                            Console.WriteLine("Player {0}'s hand", counter / 2 + 1);
+                        }
+                        //Console.WriteLine(string.Join(",", mainDeck.CardToIntArray(element)));
+                        Console.WriteLine(mainDeck.CardToName(element));
+                        counter++;
+                    }
+
+                    //Console.ReadKey();
+                    break;
+
             }
             ///////////////////////////////////
             //REMEMBER TO DELETE THIS SECTION//
             ///////////////////////////////////
 
-            Console.WriteLine("Program Over, remember to delete me");
+            Console.WriteLine("Program Over, remember to delete me. ONEGAI DESU");
             Console.ReadLine();
-            
+
         }
+
     }
 
 
@@ -375,7 +421,7 @@ namespace Poker
         public Int32 players = 0;
         public Int32 initialMoney = 1000;
         Socket s;
-        
+
         public Server(IPAddress ip, Int32 port = 31415)
         {
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -386,11 +432,11 @@ namespace Poker
             }
             catch (SocketException)
             {
-                Console.WriteLine("The IP you inserted is invalid. The program will now exit");
+                Console.WriteLine("The IP you inserted is invalid. The program will now exit..");
                 Console.ReadKey();
                 System.Environment.Exit(1);
             }
-            
+
         }
 
         public void acceptPlayer(Int32 slot)
@@ -409,9 +455,14 @@ namespace Poker
             sockets[slot].Send(encoder.GetBytes(message));
         }
 
+        public void sendCard(Card message, Int32 slot)
+        {
+            sockets[slot].Send(encoder.GetBytes(message.ToString()));
+        }
+
         public void sendStringToAll(string message)
         {
-            for(Int32 i = 0; i < players; i++)
+            for (Int32 i = 0; i < players; i++)
             {
                 sockets[i].Send(encoder.GetBytes(message));
             }
@@ -474,7 +525,21 @@ namespace Poker
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
+            Thread.Sleep(100);
             return encoder.GetString(bytes);
+        }
+
+        public Card receiveCard(Int32 length = 64)
+        {
+            byte[] bytes = new byte[length];
+            s.Receive(bytes);
+            Thread.Sleep(100);
+            string recievedCardString = encoder.GetString(bytes);
+            string[] recievedCardStringArray = recievedCardString.Split(',');
+            Int32[] recievedCardInts = Array.ConvertAll(recievedCardStringArray, int.Parse);
+
+            Card recievedCard = new Card(recievedCardInts[0], recievedCardInts[1]);
+            return recievedCard;
         }
     }
 }
