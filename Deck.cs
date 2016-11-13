@@ -173,7 +173,7 @@ namespace Poker
                 case "1"://CLIENT
                     while (true)
                     {
-                        Console.WriteLine("X: Back to menu\nEnter IP of game host: ");
+                        Console.WriteLine("Enter IP of game host: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
                         if (IPAddress.TryParse(ipstring, out ip))
@@ -225,7 +225,7 @@ namespace Poker
                     while (true)
                     {
                         Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
-                        Console.WriteLine("Enter IP to host on: ");
+                        Console.WriteLine("Enter IP to host on, 'local' for local ip: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
                         if(ipstring == "local")
