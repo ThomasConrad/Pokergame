@@ -128,30 +128,31 @@ namespace Poker
 
     public class Program
     {
-        public static void Main()
+        public String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+        public String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
+
+        public string CardToName(Card element)
         {
+            string hand0 = element.ToString();
+            string[] hand1 = hand0.Split(',');
+            Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
+            return faceNames[myInts[0] - 1] + " of " + suitNames[myInts[1] - 1];
+        }
 
-            /*
-            for (int i = 0; i < Deck.cardAmount; i++)
-            {
-                Console.Write("{0,-20}", mainDeck.GenerateCard());
-                if ((i + 1) % 4 == 0)
-                    Console.WriteLine();
-            }
-            Console.ReadKey();
-            */
+        public static void Main()
+        { 
 
+            
 
-
-
-
-
-
-
-
-
-
-
+        /*
+        for (int i = 0; i < Deck.cardAmount; i++)
+        {
+            Console.Write("{0,-20}", mainDeck.GenerateCard());
+            if ((i + 1) % 4 == 0)
+                Console.WriteLine();
+        }
+        Console.ReadKey();
+        */
 
 
 
@@ -184,8 +185,20 @@ namespace Poker
 
 
 
-            //Menu options
-            Console.WriteLine("1. Join Game\n2. Host Game");
+
+
+
+
+
+
+
+
+
+
+
+
+        //Menu options
+        Console.WriteLine("1. Join Game\n2. Host Game");
             string pick;
             pick = Console.ReadLine();
             Console.Clear();
@@ -224,8 +237,7 @@ namespace Poker
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
                     for (int i = 0; i < 2; i++) { Console.WriteLine(connection.receiveCard()); }
-
-
+                    
 
 
 
@@ -308,6 +320,7 @@ namespace Poker
 
                     //Accepts players, by looping until everyone is in.
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
+            
                     Server server = new Server(ip);
                     server.listen();
                     connection.connect(ip);
@@ -368,10 +381,11 @@ namespace Poker
             //REMEMBER TO DELETE THIS SECTION//
             ///////////////////////////////////
 
-            Console.WriteLine("Program Over, remember to delete me. ONEGAI DESU");
+            Console.WriteLine("Program Over, remember to delete me. ONEGAI DESU~~");
             Console.ReadLine();
 
         }
+        
 
     }
 
