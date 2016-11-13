@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 //Let's fucking go yo!
@@ -165,15 +167,15 @@ namespace Poker
             Int32 playeramount;
             Console.WriteLine("Pick a name: ");
             string name = Console.ReadLine();
+            Console.Clear();
             //Console.ReadLine();
             Client connection = new Client(name);
             switch (pick)
             {
-                //Joining game
-                case "1":
+                case "1"://CLIENT
                     while (true)
                     {
-                        Console.WriteLine("X: Back to menu\nEnter IP of game host: ");
+                        Console.WriteLine("Enter IP of game host: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
                         if (IPAddress.TryParse(ipstring, out ip))
@@ -184,7 +186,7 @@ namespace Poker
                     try
                     {
                         Console.WriteLine("Attempting Connection...");
-                        connection.connect(ip, 31415);
+                        connection.connect(ip);
                     }
                     catch (SocketException)
                     {
@@ -196,15 +198,37 @@ namespace Poker
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
 
+                    Console.WriteLine(connection.receiveString());
+                    Console.ReadLine();
+                    Console.WriteLine(connection.receiveString()); //skip this shit. kk pls fix
 
 
 
 
 
 
-                break;
-                //Hosting game
-                case "2":
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    break;
+                case "2": //HOST
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
                     Card[,] hands = mainDeck.Hand(4); //TODO: Make dependant on actual amount of players
@@ -226,10 +250,17 @@ namespace Poker
                     while (true)
                     {
                         Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
-                        Console.WriteLine("Enter IP to host on: ");
+                        Console.WriteLine("Enter IP to host on, 'local' for local ip: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
-                        if (IPAddress.TryParse(ipstring, out ip))
+                        if(ipstring == "local")
+                        {
+                            if (IPAddress.TryParse(NetTools.getLocalIP().ToString(), out ip))
+                            {
+                                break;
+                            }
+                        }
+                        else if (IPAddress.TryParse(ipstring, out ip))
                         {
                             break;
                         }
@@ -258,21 +289,36 @@ namespace Poker
 
                     //Accepts players, by looping until everyone is in.
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
-                    Server server = new Server(ip, 31415);
+                    Server server = new Server(ip);
                     server.listen();
+                    connection.connect(ip);
                     while (true)
                     {
                         Console.Clear();
-                        if (playeramount == server.players)
+                        if (playeramount == server.players) //changing for testing
                         {
                             break;
                         }
+                        Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
                         Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
                         //Print names here, we need some way to receive and store them, but that's not important right now.
                         server.acceptPlayer(server.players);
+                        
                     }
                     //After this point, all players should be in the game, in theory. Except the host, that still needs to be set up.
 
+
+                    //server.sendStringToAll("Server ready. Press enter to begin.");
+                    //connection.receiveString();
+                    for(int i = 0; i < playeramount; i++) //Never gets through, kk pls fix.
+
+                    {
+                        for(int j = 0; j < 2; j++)
+                        {
+                            string tempCard = Convert.ToString(hands[i, j]);
+                            server.sendString(tempCard, i);
+                        }
+                    }
 
                 break;
             }
@@ -285,6 +331,25 @@ namespace Poker
             
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static class NetTools
     {
@@ -306,16 +371,26 @@ namespace Poker
     public class Server
     {
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
-        public Socket[] sockets = new Socket[8];
+        public Socket[] sockets = new Socket[16];
         public Int32 players = 0;
         public Int32 initialMoney = 1000;
         Socket s;
         
-        public Server(IPAddress ip, Int32 port)
+        public Server(IPAddress ip, Int32 port = 31415)
         {
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint endpoint = new IPEndPoint(ip, port);
-            s.Bind(endpoint);
+            try
+            {
+                s.Bind(endpoint);
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("The IP you inserted is invalid. The program will now exit");
+                Console.ReadKey();
+                System.Environment.Exit(1);
+            }
+            
         }
 
         public void acceptPlayer(Int32 slot)
@@ -324,14 +399,22 @@ namespace Poker
             players++;
         }
 
-        public void listen()
+        public void listen(int time = 10)
         {
-            s.Listen(10);
+            s.Listen(time);
         }
 
         public void sendString(string message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message));
+        }
+
+        public void sendStringToAll(string message)
+        {
+            for(Int32 i = 0; i < players; i++)
+            {
+                sockets[i].Send(encoder.GetBytes(message));
+            }
         }
 
         public void sendInt(Int32 message, Int32 slot)
@@ -365,7 +448,7 @@ namespace Poker
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public void connect(IPAddress ip, Int32 port)
+        public void connect(IPAddress ip, Int32 port = 31415)
         {
             s.Connect(ip, port);
         }
