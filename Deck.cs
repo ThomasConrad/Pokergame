@@ -32,8 +32,8 @@ namespace Poker
     //Easy way to do a collection of cards
     public class Deck
     {
-        String[] faceName = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
-        String[] suit = { "spades", "hearts", "clubs", "diamonds" };
+        public String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+        public String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
         private Card[] deck;
         private int currentCard;
         public const int cardAmount = 52;
@@ -323,6 +323,7 @@ namespace Poker
                         }
                     }
                     foreach (var element in mainDeck.Hand(1, hands))
+                        
                         Console.WriteLine(element);
                     int counter = 0;
                     foreach (Card element in hands)
