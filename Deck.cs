@@ -197,7 +197,10 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    
+
+                    Console.WriteLine(connection.receiveString());
+                    Console.ReadLine();
+                    Console.WriteLine(connection.receiveString()); //skip this shit. kk pls fix
 
 
 
@@ -205,7 +208,26 @@ namespace Poker
 
 
 
-                break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    break;
                 case "2": //HOST
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
@@ -284,7 +306,12 @@ namespace Poker
                         
                     }
                     //After this point, all players should be in the game, in theory. Except the host, that still needs to be set up.
-                    for(int i = 0; i < playeramount; i++)
+
+
+                    //server.sendStringToAll("Server ready. Press enter to begin.");
+                    //connection.receiveString();
+                    for(int i = 0; i < playeramount; i++) //Never gets through, kk pls fix.
+
                     {
                         for(int j = 0; j < 2; j++)
                         {
@@ -304,6 +331,25 @@ namespace Poker
             
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static class NetTools
     {
@@ -361,6 +407,14 @@ namespace Poker
         public void sendString(string message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message));
+        }
+
+        public void sendStringToAll(string message)
+        {
+            for(Int32 i = 0; i < players; i++)
+            {
+                sockets[i].Send(encoder.GetBytes(message));
+            }
         }
 
         public void sendInt(Int32 message, Int32 slot)
