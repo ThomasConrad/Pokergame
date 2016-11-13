@@ -197,6 +197,7 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
+                    Client.
 
 
 
