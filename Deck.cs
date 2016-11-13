@@ -321,7 +321,7 @@ namespace Poker
             }
             catch (SocketException)
             {
-                Console.WriteLine("The IP you inserted is invalid.");
+                Console.WriteLine("The IP you inserted is invalid. The program will now exit");
                 Console.ReadKey();
                 System.Environment.Exit(1);
             }
