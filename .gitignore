@@ -243,3 +243,9 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+.vs/Pokergame/v14/.suo
+bin/Debug/ConsoleApplication.exe
+obj/x86/Debug/Pokergame.csprojResolveAssemblyReference.cache
+bin/Debug/ConsoleApplication.exe
+obj/x86/Debug/ConsoleApplication.exe
+obj/x86/Debug/ConsoleApplication.pdb
