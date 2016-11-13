@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 //Let's fucking go yo!
@@ -195,6 +197,9 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
+                    Console.WriteLine(connection.receiveString());
+                    Console.ReadLine();
+                    Console.WriteLine(connection.receiveString()); //skip this shit. kk pls fix
 
 
 
@@ -202,7 +207,26 @@ namespace Poker
 
 
 
-                break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    break;
                 case "2": //HOST
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
@@ -266,10 +290,11 @@ namespace Poker
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
                     Server server = new Server(ip);
                     server.listen();
+                    connection.connect(ip);
                     while (true)
                     {
                         Console.Clear();
-                        if (playeramount == server.players)
+                        if (playeramount == server.players) //changing for testing
                         {
                             break;
                         }
@@ -277,9 +302,20 @@ namespace Poker
                         Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
                         //Print names here, we need some way to receive and store them, but that's not important right now.
                         server.acceptPlayer(server.players);
+                        
                     }
                     //After this point, all players should be in the game, in theory. Except the host, that still needs to be set up.
 
+                    //server.sendStringToAll("Server ready. Press enter to begin.");
+                    //connection.receiveString();
+                    for(int i = 0; i < playeramount; i++) //Never gets through, kk pls fix.
+                    {
+                        for(int j = 0; j < 2; j++)
+                        {
+                            string tempCard = Convert.ToString(hands[i, j]);
+                            server.sendString(tempCard, i);
+                        }
+                    }
 
                 break;
             }
@@ -292,6 +328,25 @@ namespace Poker
             
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static class NetTools
     {
@@ -313,7 +368,7 @@ namespace Poker
     public class Server
     {
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
-        public Socket[] sockets = new Socket[8];
+        public Socket[] sockets = new Socket[16];
         public Int32 players = 0;
         public Int32 initialMoney = 1000;
         Socket s;
@@ -349,6 +404,14 @@ namespace Poker
         public void sendString(string message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message));
+        }
+
+        public void sendStringToAll(string message)
+        {
+            for(Int32 i = 0; i < players; i++)
+            {
+                sockets[i].Send(encoder.GetBytes(message));
+            }
         }
 
         public void sendInt(Int32 message, Int32 slot)
