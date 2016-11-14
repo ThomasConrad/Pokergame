@@ -140,6 +140,9 @@ namespace Poker
             Console.WriteLine("Your hand: " + tempHand[0] + " and " + tempHand[1]);
         }
 
+        
+        
+
 
         public static void Main()
         {
@@ -244,7 +247,7 @@ namespace Poker
                         tempCard[i] = CardToName(connection.receiveCard());
                     }
                     Console.WriteLine(tempCard[0] + " and " + tempCard[1]);
-                    Console.ReadLine();
+                    Console.ReadLine(); 
 
 
 
@@ -290,13 +293,13 @@ namespace Poker
                     //Set IP address to host on
                     while (true)
                     {
-                        Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
+                        Console.WriteLine("Your local IP: " + Game.getLocalIP().ToString());
                         Console.WriteLine("Enter IP to host on, 'local' for local ip: ");
                         string ipstring = Console.ReadLine();
                         Console.Clear();
                         if (ipstring == "local")
                         {
-                            if (IPAddress.TryParse(NetTools.getLocalIP().ToString(), out ip))
+                            if (IPAddress.TryParse(Game.getLocalIP().ToString(), out ip))
                             {
                                 break;
                             }
@@ -381,13 +384,19 @@ namespace Poker
                         {
                             break;
                         }
-                        Console.WriteLine("Your local IP: " + NetTools.getLocalIP().ToString());
+                        Console.WriteLine("Your local IP: " + Game.getLocalIP().ToString());
                         Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
                         //Print names here, we need some way to receive and store them, but that's not important right now.
                         server.acceptPlayer(server.players);
 
                     }
 
+<<<<<<< HEAD
+=======
+                    Card[,] hands = mainDeck.PlayerHands(playeramount); //stores the hand
+                    string[] names = new string[playeramount];
+                    
+>>>>>>> origin/master
 
                     ////////////////////////////
                     /// RUNS THE ACTUAL GAME ///
@@ -508,7 +517,7 @@ namespace Poker
     
     
     
-    public static class NetTools
+    public static class Game
     {
         public static IPAddress getLocalIP()
         {
@@ -522,6 +531,62 @@ namespace Poker
                 }
             }
             return null;
+        }
+        static Boolean isFlush(Card[] cards)
+        {
+            int[] suits = new int[7];
+            int count = 0;
+            foreach(var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                suits[count] = tempInts[1];
+                count++; 
+            }
+            
+            var groups = suits.GroupBy(item => item);
+            foreach (var group in groups)
+            {
+                if (group.Count() == 5)
+                {
+                    return true;
+
+                }
+            }
+            return false;
+        }
+
+        static Boolean isStraight(Card[] cards)
+        {
+            int[] ranks = new int[7];
+            int count = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                ranks[count] = tempInts[0];
+                count++;
+            }
+            Array.Sort(ranks);
+            for(int i = 0; i < 3; i++)
+            {
+                if (ranks[6-i] == ranks[5-i]-1 && ranks[5 - i] == ranks[4 - i] - 1 && ranks[6 - i] == ranks[5 - i] - 1)
+            }
+           
+        }
+
+        static void BestHand(Card[] playerHand, Card[] board)
+        {
+            int cardAmount = playerHand.Length + board.Length;
+            Card[] cards = new Card[cardAmount];
+            for (int i = 0; i < cardAmount; i++)
+            {
+                if (i < playerHand.Length) { cards[i] = playerHand[i]; }
+                else { cards[i] = board[i]; }
+            }
+
         }
     }
 
