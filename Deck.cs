@@ -233,10 +233,9 @@ namespace Poker
                         Console.Clear();
                         goto case "1";
                     }
-                    //Console.Clear();
+                    Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    Console.ReadLine();
-                    Console.WriteLine(connection.receiveString());
+                    Console.Clear();
                     Console.WriteLine("Your hand:");
 
                     string[] tempCard = new string[2];
@@ -352,10 +351,6 @@ namespace Poker
                         players[i] = new Player(1000);
                     }
 
-
-                    //server.sendStringToAll("Server ready. Press enter to begin.");
-                    //connection.receiveString();
-                    server.sendStringToAll("Server ready. Press enter to begin.");
 
                     Card[,] hands = mainDeck.PlayerHands(server.players);
 
