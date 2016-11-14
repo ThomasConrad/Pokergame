@@ -109,10 +109,16 @@ namespace Poker
     public class Player
     {
         public Int32 currency;
+        public string name;
+        public Int32 slot;
+        public Card[] hand;
 
-        public Player(Int32 initialMoney)
+        public Player(string playerName, Int32 playerSlot, Card[] playerHand)
         {
-            currency = initialMoney;
+            currency = 1000;
+            name = playerName;
+            slot = playerSlot;
+            hand = playerHand;
         }
     }
 
@@ -129,16 +135,28 @@ namespace Poker
             return faceNames[tempInts[0]-1] + " of " + suitNames[tempInts[1]-1];
         }
 
-        static void PrintHand(Card[,] hands, int slot = 0)
+        static void PrintHandFromArray(Card[,] hands, int slot = 0)
         {
-            string[] tempCardServer = new string[2];
+            string[] tempHand = new string[2];
             Console.WriteLine("Your hand:");
             for (int i = 0; i < 2; i++)
             {
-                tempCardServer[i] = CardToName(hands[slot-1, i]);
+                tempHand[i] = CardToName(hands[slot-1, i]);
             }
-            Console.WriteLine(tempCardServer[0] + " and " + tempCardServer[1]);
+            Console.WriteLine(tempHand[0] + " and " + tempHand[1]);
         }
+
+        static void PrintHand(Card[] hands)
+        {
+            string[] tempHand = new string[2];
+            //Console.WriteLine("Your hand:");
+            for (int i = 0; i < 2; i++)
+            {
+                tempHand[i] = CardToName(hands[i]);
+            }
+            Console.WriteLine("Your hand: " + tempHand[0] + " and " + tempHand[1]);
+        }
+
 
         public static void Main()
         {
@@ -343,17 +361,14 @@ namespace Poker
                         server.acceptPlayer(server.players);
 
                     }
-                    Player[] players = new Player[playeramount];
-                    for(int i = 0; i < playeramount; i++)
-                    {
-                        players[i] = new Player(1000);
-                    }
-
 
                     Card[,] hands = mainDeck.PlayerHands(server.players);
+                    string[] names = new string[playeramount];
+                    
 
                     //--------------------------------------
                     //Send hands to players
+
                     for (int i = 1; i < playeramount; i++)
                     {
                         for (int j = 0; j < 2; j++)
@@ -369,9 +384,10 @@ namespace Poker
                     //--------------------------------------
                     //prints the servers hand
                     Console.Clear();
-                    PrintHand(hands);
+                    PrintHandFromArray(hands, 1);
                     Console.ReadLine();
 
+                    
                     //--------------------------------------
                     /*Prints the hands of all players
                     int counter = 0;
