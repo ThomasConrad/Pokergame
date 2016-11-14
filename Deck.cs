@@ -34,8 +34,8 @@ namespace Poker
     public class Deck
     {
         private Card[] deck;
-        private int currentCard;
-        public const int cardAmount = 52;
+        private Int32 currentCard;
+        public const Int32 cardAmount = 52;
         private Random ranCard;
 
         public Deck()
@@ -59,7 +59,7 @@ namespace Poker
             currentCard = 0;
             for (int i = 0; i < deck.Length; i++)
             {
-                int j = ranCard.Next(cardAmount);
+                Int32 j = ranCard.Next(cardAmount);
                 Card temp = deck[i];
                 deck[i] = deck[j]; //shuffles a random card to an iterating spot
                 deck[j] = temp; //shuffles an iterating card to a random spot
@@ -106,23 +106,6 @@ namespace Poker
         }
     }
 
-    public class Player
-    {
-        public Int32 currency;
-        public string name;
-        public Int32 slot;
-        public Card[] hand;
-
-        public Player(string playerName, Int32 playerSlot, Card[] playerHand)
-        {
-            currency = 1000;
-            name = playerName;
-            slot = playerSlot;
-            hand = playerHand;
-        }
-    }
-
-
     public class Program
     {
         static string CardToName(Card element)
@@ -135,7 +118,7 @@ namespace Poker
             return faceNames[tempInts[0]-1] + " of " + suitNames[tempInts[1]-1];
         }
 
-        static void PrintHandFromArray(Card[,] hands, int slot = 0)
+        static void PrintHandFromArray(Card[,] hands, Int32 slot = 0)
         {
             string[] tempHand = new string[2];
             Console.WriteLine("Your hand:");
@@ -220,7 +203,6 @@ namespace Poker
             pick = Console.ReadLine();
             Console.Clear();
             IPAddress ip;
-            Int32 playeramount;
             Console.WriteLine("Pick a name: ");
             string name = Console.ReadLine();
             Console.Clear();
@@ -289,6 +271,9 @@ namespace Poker
 
                     break;
                 case "2": //HOST
+                    Int32 playeramount;
+                    Int32 initialMoney;
+                    Int32 dead = 0;
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
 
@@ -343,6 +328,47 @@ namespace Poker
                         }
                     }
 
+                    //Set amount of money you start with
+                    while (true)
+                    {
+                        Console.WriteLine("Enter initial amount of money: ");
+                        string setmoney = Console.ReadLine();
+                        Console.Clear();
+                        try
+                        {
+                            initialMoney = Convert.ToInt32(setmoney);
+                            if (initialMoney > 1000000000 || initialMoney < 1000)
+                            {
+                                continue;
+                            }
+                            break;
+                        }
+                        catch (FormatException)
+                        {
+                            continue;
+                        }
+                    }
+
+                    //Creates a tracking array for the players, noting the amount of money the have as well as being used to keep general statistics for running the game.
+                    //We really should've made a class for these things >:(
+                    Int32[,] players = new Int32[playeramount+1,2];
+                    for (Int32 i = 0; i < playeramount; i++)
+                    {
+                        players[i,0] = initialMoney;
+
+                        //Flag for status checks, big blind, small blind and bankruptcy
+                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit creek without a paddle
+                        players[i, 1] = 0;
+                    }
+
+                    //Initial big/small blind
+                    players[0, 1] = 1;
+                    players[1, 1] = 2;
+
+                    //Ghost player to make handling of players easier later on, sits outside the visible range of for loops, because they run towards the playeramount
+                    players[playeramount, 0] = 0;
+                    players[playeramount, 1] = 3;
+
                     //Accepts players, by looping until everyone is in.
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
                     Server server = new Server(ip);
@@ -351,7 +377,7 @@ namespace Poker
                     while (true)
                     {
                         Console.Clear();
-                        if (playeramount == server.players) //changing for testing
+                        if (playeramount == server.players)
                         {
                             break;
                         }
@@ -362,35 +388,83 @@ namespace Poker
 
                     }
 
-                    Card[,] hands = mainDeck.PlayerHands(server.players);
-                    string[] names = new string[playeramount];
-                    
 
-                    //--------------------------------------
-                    //Send hands to players
+                    ////////////////////////////
+                    /// RUNS THE ACTUAL GAME ///
+                    ////////////////////////////
 
-                    for (int i = 1; i < playeramount; i++)
+                    bool running = true;
+                    while (running)
                     {
-                        for (int j = 0; j < 2; j++)
+                        //Kills bankrupt players
+                        for (Int32 i = 0; i < dead; i++)
                         {
-                            server.sendCard(hands[i, j], i);
+                            for (Int32 j = 0; j < playeramount; j++)
+                            {
+                                if (players[j, 1] == 3)
+                                {
+                                    players[j, 0] = players[j + 1, 0];
+                                    players[j, 1] = players[j + 1, 1];
+                                }
+                            }
                         }
+
+                        //Reduce playeramount by amount of players that got killed
+                        playeramount -= dead;
+                        dead = 0;
+
+                        Card[,] hands = mainDeck.PlayerHands(server.players);
+                        string[] names = new string[playeramount];
+
+                        //Send hands to players
+
+                        for (int i = 1; i < playeramount; i++)
+                        {
+                            for (int j = 0; j < 2; j++)
+                            {
+                                server.sendCard(hands[i, j], i);
+                            }
+                        }
+
+                        //Prints the servers hand
+                        Console.Clear();
+                        PrintHandFromArray(hands, 1);
+                        Console.ReadLine();
+
+                        //Assigns big and small blinds
+                        for (Int32 i = 0; i < playeramount; i++)
+                        {
+                            if (players[i, 1] == 1)
+                            {
+                                players[i, 1] = 2;
+                                if (players[i + 1, 1] == 3)
+                                {
+                                    players[0, 1] = 1;
+                                }
+                                players[i + 1, 1] = 1;
+                            }
+                            else if (players[i,1] == 2)
+                            {
+                                players[i, 1] = 0;
+                            }
+                        }
+
+
+
                     }
+
+
                     
 
                     
                     
 
-                    //--------------------------------------
-                    //prints the servers hand
-                    Console.Clear();
-                    PrintHandFromArray(hands, 1);
-                    Console.ReadLine();
+
 
                     
                     //--------------------------------------
                     /*Prints the hands of all players
-                    int counter = 0;
+                    Int32counter = 0;
                     foreach (Card element in hands)
                     {
                         if (counter % 2 == 0)
