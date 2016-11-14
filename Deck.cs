@@ -61,8 +61,8 @@ namespace Poker
             {
                 int j = ranCard.Next(cardAmount);
                 Card temp = deck[i];
-                deck[i] = deck[j]; //shuffles a random card to iterating spot
-                deck[j] = temp; //shuffles iterating card to random spot
+                deck[i] = deck[j]; //shuffles a random card to an iterating spot
+                deck[j] = temp; //shuffles an iterating card to a random spot
             }
         }
 
@@ -127,6 +127,17 @@ namespace Poker
             string[] hand1 = hand0.Split(',');
             Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
             return faceNames[myInts[0]-1] + " of " + suitNames[myInts[1]-1];
+        }
+
+        static void PrintServerHand(Card[,] hands)
+        {
+            string[] tempCardServer = new string[2];
+            Console.WriteLine("Your hand:");
+            for (int i = 0; i < 2; i++)
+            {
+                tempCardServer[i] = CardToName(hands[0, i]);
+            }
+            Console.WriteLine(tempCardServer[0] + " and " + tempCardServer[1]);
         }
 
         public static void Main()
@@ -225,6 +236,7 @@ namespace Poker
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
                     Console.Clear();
+                    Console.WriteLine(connection.receiveString());
                     Console.WriteLine("Your hand:");
 
                     string[] tempCard = new string[2];
@@ -339,6 +351,7 @@ namespace Poker
 
                     //server.sendStringToAll("Server ready. Press enter to begin.");
                     //connection.receiveString();
+                    Parallel.Invoke(() => server.sendStringToAll("Server ready. Press enter to begin."), () => Console.WriteLine(connection.receiveString()));
 
                     Card[,] hands = mainDeck.PlayerHands(server.players);
 
@@ -361,17 +374,11 @@ namespace Poker
                     //--------------------------------------
                     //prints the servers hand
                     Console.Clear();
-                    string[] tempCardServer = new string[2];
-                    Console.WriteLine("Your hand:");
-                    int counting = 0;
-                    for(int i = 0; i < 2; i++)
-                    {
-                        tempCardServer[i] = CardToName(hands[0, i]);
-                    }
-                    Console.WriteLine(tempCardServer[0] + " and " + tempCardServer[1]);
+                    PrintServerHand(hands);
                     Console.ReadLine();
+
                     //--------------------------------------
-                    //Prints the hands of all players
+                    /*Prints the hands of all players
                     int counter = 0;
                     foreach (Card element in hands)
                     {
@@ -382,8 +389,7 @@ namespace Poker
                         Console.WriteLine(CardToName(element));
                         counter++;
                     }
-
-                    //Console.ReadKey();
+                    */
                     break;
 
             }
@@ -473,6 +479,7 @@ namespace Poker
         public void sendString(string message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message));
+            Thread.Sleep(50);
         }
 
         public void sendCard(Card message, Int32 slot)
