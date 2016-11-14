@@ -391,12 +391,8 @@ namespace Poker
 
                     }
 
-<<<<<<< HEAD
-=======
-                    Card[,] hands = mainDeck.PlayerHands(playeramount); //stores the hand
+                    Card[,] hands = mainDeck.PlayerHands(server.players);
                     string[] names = new string[playeramount];
-                    
->>>>>>> origin/master
 
                     ////////////////////////////
                     /// RUNS THE ACTUAL GAME ///
@@ -421,9 +417,6 @@ namespace Poker
                         //Reduce playeramount by amount of players that got killed
                         playeramount -= dead;
                         dead = 0;
-
-                        Card[,] hands = mainDeck.PlayerHands(server.players);
-                        string[] names = new string[playeramount];
 
                         //Send hands to players
 
