@@ -125,17 +125,17 @@ namespace Poker
             String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
             string hand0 = element.ToString();
             string[] hand1 = hand0.Split(',');
-            Int32[] myInts = Array.ConvertAll(hand1, int.Parse);
-            return faceNames[myInts[0]-1] + " of " + suitNames[myInts[1]-1];
+            Int32[] tempInts = Array.ConvertAll(hand1, int.Parse);
+            return faceNames[tempInts[0]-1] + " of " + suitNames[tempInts[1]-1];
         }
 
-        static void PrintServerHand(Card[,] hands)
+        static void PrintHand(Card[,] hands, int slot = 0)
         {
             string[] tempCardServer = new string[2];
             Console.WriteLine("Your hand:");
             for (int i = 0; i < 2; i++)
             {
-                tempCardServer[i] = CardToName(hands[0, i]);
+                tempCardServer[i] = CardToName(hands[slot-1, i]);
             }
             Console.WriteLine(tempCardServer[0] + " and " + tempCardServer[1]);
         }
@@ -284,8 +284,6 @@ namespace Poker
 
 
 
-
-
                     //Set IP address to host on
                     while (true)
                     {
@@ -367,13 +365,11 @@ namespace Poker
 
                     
                     
-                    
-                    
 
                     //--------------------------------------
                     //prints the servers hand
                     Console.Clear();
-                    PrintServerHand(hands);
+                    PrintHand(hands);
                     Console.ReadLine();
 
                     //--------------------------------------
@@ -460,7 +456,6 @@ namespace Poker
                 Console.ReadKey();
                 System.Environment.Exit(1);
             }
-
         }
 
         public void acceptPlayer(Int32 slot)
