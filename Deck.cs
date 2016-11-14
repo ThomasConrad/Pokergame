@@ -152,7 +152,7 @@ namespace Poker
             }
             Console.ReadKey();
             */
-
+            
 
 
 
@@ -233,9 +233,9 @@ namespace Poker
                         Console.Clear();
                         goto case "1";
                     }
-                    Console.Clear();
+                    //Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    Console.Clear();
+                    Console.ReadLine();
                     Console.WriteLine(connection.receiveString());
                     Console.WriteLine("Your hand:");
 
@@ -247,7 +247,7 @@ namespace Poker
                     Console.WriteLine(tempCard[0] + " and " + tempCard[1]);
                     Console.ReadLine();
 
-                    
+
 
 
 
@@ -346,18 +346,22 @@ namespace Poker
                         server.acceptPlayer(server.players);
 
                     }
-
+                    Player[] players = new Player[playeramount];
+                    for(int i = 0; i < playeramount; i++)
+                    {
+                        players[i] = new Player(1000);
+                    }
 
 
                     //server.sendStringToAll("Server ready. Press enter to begin.");
                     //connection.receiveString();
-                    Parallel.Invoke(() => server.sendStringToAll("Server ready. Press enter to begin."), () => Console.WriteLine(connection.receiveString()));
+                    server.sendStringToAll("Server ready. Press enter to begin.");
 
                     Card[,] hands = mainDeck.PlayerHands(server.players);
 
                     //--------------------------------------
                     //Send hands to players
-                    for (int i = 0; i < playeramount; i++)
+                    for (int i = 1; i < playeramount; i++)
                     {
                         for (int j = 0; j < 2; j++)
                         {
@@ -403,26 +407,26 @@ namespace Poker
         }
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public static class NetTools
     {
         public static IPAddress getLocalIP()
@@ -445,7 +449,6 @@ namespace Poker
         System.Text.ASCIIEncoding encoder = new System.Text.ASCIIEncoding();
         public Socket[] sockets = new Socket[16];
         public Int32 players = 0;
-        public Int32 initialMoney = 1000;
         Socket s;
 
         public Server(IPAddress ip, Int32 port = 31415)
