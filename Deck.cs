@@ -351,13 +351,25 @@ namespace Poker
                             server.sendCard(hands[i, j], i);
                         }
                     }
+                    
+
+                    
+                    
+                    
+                    
 
                     //--------------------------------------
                     //prints the servers hand
-                    foreach (var element in mainDeck.Hand(1, hands))
-
-                        Console.WriteLine(CardToName(element));
-
+                    Console.Clear();
+                    string[] tempCardServer = new string[2];
+                    Console.WriteLine("Your hand:");
+                    int counting = 0;
+                    for(int i = 0; i < 2; i++)
+                    {
+                        tempCardServer[i] = CardToName(hands[0, i]);
+                    }
+                    Console.WriteLine(tempCardServer[0] + " and " + tempCardServer[1]);
+                    Console.ReadLine();
                     //--------------------------------------
                     //Prints the hands of all players
                     int counter = 0;
@@ -367,7 +379,6 @@ namespace Poker
                         {
                             Console.WriteLine("Player {0}'s hand", counter / 2 + 1);
                         }
-                        //Console.WriteLine(string.Join(",", mainDeck.CardToIntArray(element)));
                         Console.WriteLine(CardToName(element));
                         counter++;
                     }
