@@ -110,7 +110,7 @@ namespace Poker
     {
         static string CardToName(Card element)
         {
-            String[] suitNames = { "spades", "hearts", "clubs", "diamonds" };
+            String[] suitNames = { "Spades", "Hearts", "Clubs", "Diamonds" };
             String[] faceNames = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
             string hand0 = element.ToString();
             string[] hand1 = hand0.Split(',');
@@ -261,6 +261,9 @@ namespace Poker
                         hand[i] = connection.receiveCard();
                     }
                     PrintHand(hand);
+
+                    Int32 allCash = 0;
+
                     Int32[,] playerList = new Int32[playerCount,3];
                     string tempString;
                     string[] receivedArray;
@@ -336,6 +339,7 @@ namespace Poker
                                 playerList[i, 0] = Convert.ToInt32(receivedArray[i]);
                             }
                             currentBet = connection.receiveInt();
+                            allCash = connection.receiveInt();
                             receivedArray = connection.receiveString().Split(',');
                             for (Int32 i = 0; i < playerCount; i++)
                             {
@@ -594,6 +598,9 @@ namespace Poker
                             players[i, 1] = 4;
                         }
 
+                        //Update here too!!!
+
+
                         while (round != 5)
                         {
                             for (Int32 cP = 0; cP < playerAmount; cP++)
@@ -607,6 +614,7 @@ namespace Poker
                                 {
                                     case "FOLD":
                                         players[cP, 1] = 0;
+                                        bets[cP] = 0;
                                         break;
                                     case "RAIS":
                                         temp = server.receiveInt(players[cP, 2]);
@@ -621,10 +629,39 @@ namespace Poker
                                     case "CHCK":
                                         break;
                                 }
-                                //Update board for everyone here. Somehow. We've gotta invent a format for a string that informs the changes...
-                                //server.updateAll(bets, pool, players);
-                                //
-                                //
+
+
+                                //Update board for everyone here.
+                                //Cash amount for player client
+                                for (Int32 i = 0; i < playerAmount; i++)
+                                {
+                                    server.sendInt(players[i, 0], players[i, 2]);
+                                }
+                                string sentArray = "";
+                                //Bet amounts for all players
+                                foreach (Int32 i in bets)
+                                {
+                                    sentArray += i.ToString() + ",";
+                                }
+                                server.sendStringToAll(sentArray);
+                                //Current bet
+                                server.sendIntToAll(bets.Max());
+                                //Pool amount
+                                server.sendIntToAll(pool);
+                                //Cash for all players
+                                sentArray = "";
+                                for (Int32 i = 0; i < playerAmount; i++)
+                                {
+                                    sentArray += players[i, 0];
+                                }
+                                server.sendStringToAll(sentArray);
+                                //Active players
+                                sentArray = "";
+                                for (Int32 i = 0; i < playerAmount; i++)
+                                {
+                                    sentArray += players[i, 1] + ",";
+
+                                }
                             }
                         }
                         //Check for who won somewhere in here, and update player on that information
