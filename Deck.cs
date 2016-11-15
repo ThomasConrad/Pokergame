@@ -154,59 +154,6 @@ namespace Poker
         public static void Main()
         {
 
-            /*
-            for (int i = 0; i < Deck.cardAmount; i++)
-            {
-                Console.Write("{0,-20}", mainDeck.GenerateCard());
-                if ((i + 1) % 4 == 0)
-                    Console.WriteLine();
-            }
-            Console.ReadKey();
-            */
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             //Menu options
             Console.WriteLine("1. Join Game\n2. Host Game");
             string pick;
@@ -215,10 +162,11 @@ namespace Poker
             IPAddress ip;
             Console.Clear();
             //Console.ReadLine();
-            Client connection = new Client();
+
             switch (pick)
             {
                 case "1"://CLIENT
+                    Client connection = new Client();
                     while (true)
                     {
                         Console.WriteLine("Enter IP of game host: ");
@@ -256,11 +204,7 @@ namespace Poker
                     Int32 money = connection.receiveInt();
                     Console.WriteLine("bank: " + money.ToString());
                     Card[] hand = new Card[2];
-                    for(int i = 0; i < hand.Length; i++)
-                    {
-                        hand[i] = connection.receiveCard();
-                    }
-                    PrintHand(hand);
+
 
                     Int32 allCash = 0;
 
@@ -272,11 +216,28 @@ namespace Poker
                         tempString = connection.receiveString(4);
                         if (tempString == "TURN")
                         {
-                            string answer = Console.ReadLine();
-
                             //Options need to be implemented in the display
                             //1 = check, 2= call, 3= raise, 4= fold
                             picking:
+                            string answer = Console.ReadLine();
+                            if (answer.Length == 1)
+                            {
+                                try
+                                {
+                                    Convert.ToInt32(answer);
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.WriteLine("Invalid input");
+                                    goto picking;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid input");
+                                goto picking;
+                            }
+
                             switch (answer)
                             {
                                 case "1":
@@ -351,43 +312,16 @@ namespace Poker
                                 playerList[i, 2] = Convert.ToInt32(receivedArray);
                             }
                         }
+                        else if (tempString == "HAND")
+                        {
+                            for (int i = 0; i < hand.Length; i++)
+                            {
+                                hand[i] = connection.receiveCard();
+                            }
+                            PrintHand(hand);
+                        }
 
                     }
-
-                    /*
-                    Console.Clear();
-                    Console.WriteLine("Your hand:");
-
-                    string[] tempCard = new string[2];
-                    for (int i = 0; i < 2; i++)
-                    {
-                        tempCard[i] = CardToName(connection.receiveCard());
-                    }
-                    Console.WriteLine(tempCard[0] + " and " + tempCard[1]);
-                    Console.ReadLine(); 
-                    */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                     break;
                 case "2": //HOST
@@ -399,17 +333,7 @@ namespace Poker
                     Int32 pool = 0;
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
-
-                    /*
-                    string hando = hands[1, 1].ToString();
-                    string[] s0 = hando.Split(',');
-                    Console.WriteLine("{0}", string.Join(" ", s0));
-                    Console.ReadKey();
                     
-                    */
-
-
-
                     //Set IP address to host on
                     while (true)
                     {
@@ -497,7 +421,6 @@ namespace Poker
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
                     Server server = new Server(ip);
                     server.listen();
-                    connection.connect(ip);
                     while (true)
                     {
                         Console.Clear();
@@ -560,15 +483,21 @@ namespace Poker
                             if (players[i, 1] == 1)
                             {
                                 players[i, 1] = 2;
+                                server.sendString("BIGB", players[i, 2]);
                                 if (players[i + 1, 1] == 3)
                                 {
                                     players[0, 1] = 1;
+                                    server.sendString("SMLL", players[i, 2]);
+                                    break;
                                 } 
                                 players[i + 1, 1] = 1;
+                                server.sendString("SMLL", players[i, 2]);
+                                break;
                             }
                             else if (players[i,1] == 2)
                             {
                                 players[i, 1] = 0;
+                                break;
                             }
                         }
 
@@ -598,9 +527,37 @@ namespace Poker
                             players[i, 1] = 4;
                         }
 
-                        //Update here too!!!
-
-
+                        //Update board for everyone here.
+                        //Cash amount for player client
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            server.sendInt(players[i, 0], players[i, 2]);
+                        }
+                        string sentArray = "";
+                        //Bet amounts for all players
+                        foreach (Int32 i in bets)
+                        {
+                            sentArray += i.ToString() + ",";
+                        }
+                        server.sendStringToAll(sentArray);
+                        //Current bet
+                        server.sendIntToAll(bets.Max());
+                        //Pool amount
+                        server.sendIntToAll(pool);
+                        //Cash for all players
+                        sentArray = "";
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            sentArray += players[i, 0];
+                        }
+                        server.sendStringToAll(sentArray);
+                        //Active players
+                        sentArray = "";
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            sentArray += players[i, 1] + ",";
+                        }
+                        server.sendStringToAll(sentArray);
                         while (round != 5)
                         {
                             for (Int32 cP = 0; cP < playerAmount; cP++)
@@ -637,7 +594,7 @@ namespace Poker
                                 {
                                     server.sendInt(players[i, 0], players[i, 2]);
                                 }
-                                string sentArray = "";
+                                sentArray = "";
                                 //Bet amounts for all players
                                 foreach (Int32 i in bets)
                                 {
@@ -660,8 +617,8 @@ namespace Poker
                                 for (Int32 i = 0; i < playerAmount; i++)
                                 {
                                     sentArray += players[i, 1] + ",";
-
                                 }
+                                server.sendStringToAll(sentArray);
                             }
                         }
                         //Check for who won somewhere in here, and update player on that information
@@ -694,29 +651,6 @@ namespace Poker
                             }
                         }
                     }
-
-
-                    
-
-                    
-                    
-
-
-
-                    
-                    //--------------------------------------
-                    /*Prints the hands of all players
-                    Int32counter = 0;
-                    foreach (Card element in hands)
-                    {
-                        if (counter % 2 == 0)
-                        {
-                            Console.WriteLine("Player {0}'s hand", counter / 2 + 1);
-                        }
-                        Console.WriteLine(CardToName(element));
-                        counter++;
-                    }
-                    */
                     break;
 
             }
