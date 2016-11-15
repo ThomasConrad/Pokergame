@@ -768,6 +768,165 @@ namespace Poker
             else { return false; }
         }
 
+        static Boolean isFullHouse(Card[] cards)
+        {
+            int[] rank = new int[7];
+            int count = 0;
+            int key = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                rank[count] = tempInts[0];
+                count++;
+            }
+
+            var groups = rank.GroupBy(item => item);
+            foreach (var group in groups)
+            {
+                if (group.Count() >=3)
+                {
+                    key = group.Key;
+                    break;
+                }
+            }
+            foreach (var group in groups)
+            {
+                if (group.Count() >= 2 && group.Key != key && key != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static Boolean isFourOfAKind(Card[] cards)
+        {
+            int[] rank = new int[7];
+            int count = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                rank[count] = tempInts[0];
+                count++;
+            }
+
+            var groups = rank.GroupBy(item => item);
+            foreach (var group in groups)
+            {
+                if (group.Count() >= 4)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static Boolean isThreeOfAKind(Card[] cards)
+        {
+            int[] rank = new int[7];
+            int count = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                rank[count] = tempInts[0];
+                count++;
+            }
+
+            var groups = rank.GroupBy(item => item);
+            foreach (var group in groups)
+            {
+                if (group.Count() >= 3)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static Boolean isTwoPair(Card[] cards)
+        {
+            int[] rank = new int[7];
+            int count = 0;
+            int key = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                rank[count] = tempInts[0];
+                count++;
+            }
+
+            var groups = rank.GroupBy(item => item);
+            foreach (var group in groups)
+            {
+                if (group.Count() >= 2)
+                {
+                    key = group.Key;
+                    break;
+                }
+            }
+            foreach (var group in groups)
+            {
+                if (group.Count() >= 2 && group.Key != key && key != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static Boolean isPair(Card[] cards)
+        {
+            int[] rank = new int[7];
+            int count = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                rank[count] = tempInts[0];
+                count++;
+            }
+
+            var groups = rank.GroupBy(item => item);
+            foreach (var group in groups)
+            {
+                if (group.Count() >= 2)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static int highCard(Card[] cards)
+        {
+            int[] rank = new int[7];
+            int count = 0;
+            foreach (var element in cards)
+            {
+                string tempCard = element.ToString();
+                string[] tempStrings = tempCard.Split(',');
+                int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                rank[count] = tempInts[0];
+                count++;
+            }
+            Array.Sort(rank);
+            if (rank.Min() == 1)
+                return 14;
+            else
+            {
+                return rank.Max();
+            } 
+        }
+
         static void BestHand(Card[] playerHand, Card[] board)
         {
             int cardAmount = playerHand.Length + board.Length;
