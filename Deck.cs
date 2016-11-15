@@ -146,6 +146,16 @@ namespace Poker
             Console.WriteLine(element);
         }
 
+        static Card[] HandfromArray(Card[,] hands, int slot)
+        {
+            Card[] tempHand = new Card[2];
+            for (int i = 0; i < 2; i++)
+            {
+                tempHand[i] = hands[slot, i];
+            }
+            return tempHand;
+        }
+
         static void PrintHand(Card[] hands)
         {
             string[] tempHand = new string[hands.Length];
@@ -721,7 +731,18 @@ namespace Poker
                             round++;
                         }
                         //Check for who won somewhere in here, and update player on that information
-                        
+                        int[] handRatings = new int[playerAmount];
+                        for(int i = 0; i < playerAmount; i++)
+                        {
+                            if (players[i, 1] != 4)
+                            {
+                                continue;
+                            }
+                            handRatings[i] = Game.BestHand(HandfromArray(hands, i), plank);
+                        }
+                        int maxValue = handRatings.Max();
+                        int maxIndex = handRatings.ToList().IndexOf(maxValue);
+                        players[maxIndex, 1] = 5;
 
 
                         //Check for bankruptcy and pay winner
@@ -1127,7 +1148,7 @@ namespace Poker
 
         }
 
-        static int BestHand(Card[] playerHand, Card[] board)
+        public static int BestHand(Card[] playerHand, Card[] board)
         {
             int cardAmount = playerHand.Length + board.Length;
             Card[] cards = new Card[cardAmount];
