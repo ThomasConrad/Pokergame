@@ -274,9 +274,12 @@ namespace Poker
 
                     break;
                 case "2": //HOST
-                    Int32 playeramount;
+                    Int32 playerAmount;
                     Int32 initialMoney;
                     Int32 dead = 0;
+                    Int32 round = 1;
+                    Int32[] bets;
+                    Int32 pool = 0;
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
 
@@ -318,8 +321,8 @@ namespace Poker
                         Console.Clear();
                         try
                         {
-                            playeramount = Convert.ToInt32(setplayers);
-                            if (playeramount > 16 || playeramount < 2)
+                            playerAmount = Convert.ToInt32(setplayers);
+                            if (playerAmount > 16 || playerAmount < 2)
                             {
                                 continue;
                             }
@@ -354,13 +357,14 @@ namespace Poker
 
                     //Creates a tracking array for the players, noting the amount of money the have as well as being used to keep general statistics for running the game.
                     //We really should've made a class for these things >:(
-                    Int32[,] players = new Int32[playeramount+1,2];
-                    for (Int32 i = 0; i < playeramount; i++)
+                    //[player, 0] for money, [player, 1] for status flags, [player, 2] for associated socket to tie it into the network system
+                    Int32[,] players = new Int32[playerAmount+1,3];
+                    for (Int32 i = 0; i < playerAmount; i++)
                     {
                         players[i,0] = initialMoney;
 
                         //Flag for status checks, big blind, small blind and bankruptcy
-                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit creek without a paddle
+                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit creek without a paddle, 4 = in-round
                         players[i, 1] = 0;
                     }
 
@@ -368,9 +372,9 @@ namespace Poker
                     players[0, 1] = 1;
                     players[1, 1] = 2;
 
-                    //Ghost player to make handling of players easier later on, sits outside the visible range of for loops, because they run towards the playeramount
-                    players[playeramount, 0] = 0;
-                    players[playeramount, 1] = 3;
+                    //Ghost player to make handling of players easier later on, sits outside the visible range of for loops, because they run towards the playerAmount
+                    players[playerAmount, 0] = 0;
+                    players[playerAmount, 1] = 3;
 
                     //Accepts players, by looping until everyone is in.
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
@@ -380,19 +384,19 @@ namespace Poker
                     while (true)
                     {
                         Console.Clear();
-                        if (playeramount == server.players)
+                        if (playerAmount == server.players)
                         {
                             break;
                         }
                         Console.WriteLine("Your local IP: " + Game.getLocalIP().ToString());
-                        Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
+                        Console.WriteLine("Waiting for " + (playerAmount - server.players).ToString() + " more players.\nCurrent players:");
                         //Print names here, we need some way to receive and store them, but that's not important right now.
                         server.acceptPlayer(server.players);
 
                     }
 
-
-                   
+                    Card[,] hands = mainDeck.PlayerHands(server.players);
+                    string[] names = new string[playerAmount];
 
                     ////////////////////////////
                     /// RUNS THE ACTUAL GAME ///
@@ -404,26 +408,27 @@ namespace Poker
                         //Kills bankrupt players
                         for (Int32 i = 0; i < dead; i++)
                         {
-                            for (Int32 j = 0; j < playeramount; j++)
+                            for (Int32 j = 0; j < playerAmount; j++)
                             {
                                 if (players[j, 1] == 3)
                                 {
                                     players[j, 0] = players[j + 1, 0];
                                     players[j, 1] = players[j + 1, 1];
+                                    players[j, 2] = players[j + 1, 2];
                                 }
                             }
                         }
 
-                        //Reduce playeramount by amount of players that got killed
-                        playeramount -= dead;
+                        //Reduce playerAmount by amount of players that got killed
+                        playerAmount -= dead;
                         dead = 0;
 
-                        Card[,] hands = mainDeck.PlayerHands(server.players);
-                        string[] names = new string[playeramount];
+                        //Is this when we want to do it? Because I don't think so..
+                        //---------------------------------------------------------
 
                         //Send hands to players
 
-                        for (int i = 1; i < playeramount; i++)
+                        for (int i = 1; i < playerAmount; i++)
                         {
                             for (int j = 0; j < 2; j++)
                             {
@@ -436,8 +441,10 @@ namespace Poker
                         PrintHandFromArray(hands, 1);
                         Console.ReadLine();
 
+                        //---------------------------------------------------------
+
                         //Assigns big and small blinds
-                        for (Int32 i = 0; i < playeramount; i++)
+                        for (Int32 i = 0; i < playerAmount; i++)
                         {
                             if (players[i, 1] == 1)
                             {
@@ -445,7 +452,7 @@ namespace Poker
                                 if (players[i + 1, 1] == 3)
                                 {
                                     players[0, 1] = 1;
-                                }
+                                } 
                                 players[i + 1, 1] = 1;
                             }
                             else if (players[i,1] == 2)
@@ -454,8 +461,92 @@ namespace Poker
                             }
                         }
 
+                        /////////////////////////
+                        /// ROUNDS BEGIN HERE ///
+                        /////////////////////////
 
+                        bets = new Int32[playerAmount];
 
+                        //Big blind and small blind
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            if (players[i, 1] == 1)
+                            {
+                                players[i, 0] -= 100;
+                                bets[i] = 100;
+                            }
+                            if (players[i, 1] == 2)
+                            {
+                                players[i, 0] -= 200;
+                                bets[i] = 200;
+                            }
+                        }
+
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            players[i, 1] = 4;
+                        }
+
+                        while (round != 5)
+                        {
+                            for (Int32 cP = 0; cP < playerAmount; cP++)
+                            {
+                                server.sendString("TURN", players[cP, 2]);
+
+                                //Tager imod input fra spillere, går ud fra at clients'ne ved hvad de laver så serveren ikke behøver at sende beskeder frem og tilbage indtil den får et gyldigt svar
+                                string answer = server.receiveString(players[cP, 2], 4);
+                                Int32 temp;
+                                switch (answer)
+                                {
+                                    case "FOLD":
+                                        players[cP, 1] = 0;
+                                        break;
+                                    case "RAIS":
+                                        temp = server.receiveInt(players[cP, 2]);
+                                        bets[cP] += temp;
+                                        pool += temp;
+                                        break;
+                                    case "CALL":
+                                        temp = server.receiveInt(players[cP, 2]);
+                                        bets[cP] += temp;
+                                        pool += temp;
+                                        break;
+                                    case "CHCK":
+                                        break;
+                                }
+                                //Update board for everyone here. Somehow. We've gotta invent a format for a string that informs the changes...
+                                //
+                                //
+                                //
+                            }
+                        }
+                        //Check for who won somewhere in here, and update player on that information
+                        //
+                        //
+                        //
+
+                        //Check for bankruptcy and pay winner
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            if (players[i, 0] < 200 && players[i, 1] == 1)
+                            {
+                                players[i, 1] = 3; //RIP
+                                dead += 1;
+                            }
+                            else if (players[i, 0] < 100)
+                            {
+                                players[i, 1] = 3; //RIP
+                                dead += 1;
+                            }
+                            else if (players[i, 1] == 4)
+                            {
+                                players[i, 1] = 0;
+                            }
+                            else if (players[i, 1] == 5)
+                            {
+                                players[i, 0] += pool; //Big money, ayyy
+                            }
+                        }
                     }
 
 
@@ -566,55 +657,11 @@ namespace Poker
                 count++;
             }
             Array.Sort(ranks);
-            Int32[] tempHand = new Int32[7];
-            Int32[] tempHand0 = new Int32[7];
-            Int32 count0 = 0;
-            var groups = ranks.GroupBy(item => item);
-            if(groups.Count() < 5) { return false; } //if you don't have 5 different cards
-            if (groups.Count() == 5) //if you have 5 different cards
+            for(int i = 0; i < 3; i++)
             {
-                foreach(var group in groups)
-                {
-                    tempHand[count0] = group.Key;
-                }
-                Array.Sort(tempHand);
-                if (tempHand.Sum()/5 == tempHand[2]) { return true; }
-                return false;
+                if (ranks[6-i] == ranks[5-i]-1 && ranks[5 - i] == ranks[4 - i] - 1 && ranks[6 - i] == ranks[5 - i] - 1)
             }
-            if (groups.Count() == 6) // if you have 6 different cards
-            {
-                foreach (var group in groups)
-                {
-                    tempHand[count0] = group.Key;
-                }
-                for (int i = 0; i < 2; i++)
-                {
-                    for (int j = 0; j < 5; j++)
-                    {
-                        tempHand0[j] = tempHand[j + i];
-                    }
-                    if (tempHand0.Sum() / 5 == tempHand0[2]) { return true; }
-
-                }
-                return false;
-            }
-            if (groups.Count() == 7)// if you have 7 different cards
-            {
-                foreach (var group in groups)
-                {
-                    tempHand[count0] = group.Key;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 5; j++)
-                    {
-                        tempHand0[j] = tempHand[j + i];
-                    }
-                    if (tempHand0.Sum() / 5 == tempHand0[2]) { return true; }
-                }
-                return false;
-            }
-            return false;
+           
         }
 
         static void BestHand(Card[] playerHand, Card[] board)
