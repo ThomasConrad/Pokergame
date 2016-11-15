@@ -131,16 +131,19 @@ namespace Poker
 
         static void PrintHand(Card[] hands)
         {
-            string[] tempHand = new string[2];
+            string[] tempHand = new string[hands.Length];
             //Console.WriteLine("Your hand:");
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < hands.Length; i++)
             {
                 tempHand[i] = CardToName(hands[i]);
             }
             Console.WriteLine("Your hand: " + tempHand[0] + " and " + tempHand[1]);
         }
 
-        
+        static void printBoard()
+        {
+
+        }
         
 
 
