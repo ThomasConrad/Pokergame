@@ -942,7 +942,7 @@ namespace Poker
             else {return highValue; }
         }
 
-        static void BestHand(Card[] playerHand, Card[] board)
+        static int BestHand(Card[] playerHand, Card[] board)
         {
             int cardAmount = playerHand.Length + board.Length;
             Card[] cards = new Card[cardAmount];
@@ -951,7 +951,7 @@ namespace Poker
                 if (i < playerHand.Length) { cards[i] = playerHand[i]; }
                 else { cards[i] = board[i]; }
             }
-
+            return deckValue(cards);
         }
     }
 
