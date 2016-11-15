@@ -480,7 +480,10 @@ namespace Poker
                     {
                         mainDeck.Shuffle();
                         Card[,] hands = mainDeck.PlayerHands(server.players);
+<<<<<<< HEAD
                         //Plank is board, know your synonyms
+=======
+>>>>>>> origin/master
                         Card[] plank = mainDeck.BuildBoard();
 
                         //Kills bankrupt players
@@ -501,10 +504,10 @@ namespace Poker
                         playerAmount -= dead;
                         dead = 0;
 
-                        //Send hands to all players, not the server
+                        //Send hands to all players
 
                         server.sendStringToAll("HAND");
-                        for (int i = 1; i < playerAmount; i++)
+                        for (int i = 0; i < playerAmount; i++)
                         {
                             for (int j = 0; j < 2; j++)
                             {
@@ -512,7 +515,16 @@ namespace Poker
                             }
                         }
 
-
+                        //Send board to players
+                        server.sendStringToAll("BORD");
+                        for(int i = 0; i < playerAmount; i++)
+                        {
+                            for (int j = 0; i < 5; i++)
+                            {
+                                server.sendCard(plank[j], i);
+                            }
+                        }
+                        
                         //print servers hand
                         PrintHandFromArray(hands, 0);
 
