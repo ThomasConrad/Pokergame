@@ -706,7 +706,7 @@ namespace Poker
         {
             int[] suits = new int[7];
             int count = 0;
-            foreach(var element in cards)
+            foreach(var element in cards) //splits the suits from data type Card[]
             {
                 string tempCard = element.ToString();
                 string[] tempStrings = tempCard.Split(',');
@@ -718,7 +718,7 @@ namespace Poker
             var groups = suits.GroupBy(item => item);
             foreach (var group in groups)
             {
-                if (group.Count() == 5)
+                if (group.Count() == 5) //if there are five of the same suit, you have a flush
                 {
                     return true;
 
@@ -731,7 +731,7 @@ namespace Poker
         {
             int[] ranks = new int[7];
             int count = 0;
-            foreach (var element in cards)
+            foreach (var element in cards)//splits the ranks from data type Card[]
             {
                 string tempCard = element.ToString();
                 string[] tempStrings = tempCard.Split(',');
@@ -809,13 +809,13 @@ namespace Poker
         
         static Boolean isStraightFlush(Card[] cards)
         {
-            if(isStraight(cards) && isFlush(cards)) { return true; }
+            if(isStraight(cards) && isFlush(cards)) { return true; } // if it's a straight and a flush, it's a straight flush
             else { return false; }
         }
 
         static Boolean isRoyalFlush(Card[] cards)
         {
-            if(isStraightFlush(cards))
+            if(isStraightFlush(cards)) //checks if it's a straight flush
             {
                 int[] ranks = new int[7];
                 int count = 0;
@@ -831,14 +831,14 @@ namespace Poker
                 Int32[] tempHand1 = new Int32[7];
                 Int32 count0 = 0;
                 var groups = ranks.GroupBy(item => item);
-                if (ranks.Max() == 13 && ranks.Min() == 1)
+                if (ranks.Max() == 13 && ranks.Min() == 1) //checks if the lowest card is an ace, and the highest a king
                 {
                     foreach (var group in groups)
                     {
                         tempHand1[count0] = group.Key;
                         count0++;
                     }
-                    Array.Sort(tempHand1);
+                    Array.Sort(tempHand1);//checks if you have the cards for a royal flush
                     if (tempHand1[groups.Count() - 1] == 13 && tempHand1[groups.Count() - 2] == 12 && tempHand1[groups.Count() - 3] == 11 && tempHand1[groups.Count() - 4] == 10)
                     {
                         return true;
@@ -866,7 +866,7 @@ namespace Poker
             }
 
             var groups = rank.GroupBy(item => item);
-            foreach (var group in groups)
+            foreach (var group in groups) //do you have three of one card
             {
                 if (group.Count() >=3)
                 {
@@ -874,7 +874,7 @@ namespace Poker
                     break;
                 }
             }
-            foreach (var group in groups)
+            foreach (var group in groups) // do you have two of one card, that isn't the one you had three of?
             {
                 if (group.Count() >= 2 && group.Key != key && key != 0)
                 {
@@ -922,7 +922,7 @@ namespace Poker
             }
 
             var groups = rank.GroupBy(item => item);
-            foreach (var group in groups)
+            foreach (var group in groups) // do you have three cards with the same rank
             {
                 if (group.Count() >= 3)
                 {
@@ -946,7 +946,7 @@ namespace Poker
                 count++;
             }
 
-            var groups = rank.GroupBy(item => item);
+            var groups = rank.GroupBy(item => item); // do you have two of the same card
             foreach (var group in groups)
             {
                 if (group.Count() >= 2)
@@ -955,7 +955,7 @@ namespace Poker
                     break;
                 }
             }
-            foreach (var group in groups)
+            foreach (var group in groups)// do you have two of the same card, that isn't the same type of cards as the one you just had
             {
                 if (group.Count() >= 2 && group.Key != key && key != 0)
                 {
@@ -978,7 +978,7 @@ namespace Poker
                 count++;
             }
 
-            var groups = rank.GroupBy(item => item);
+            var groups = rank.GroupBy(item => item); // do you have two cards of the same value
             foreach (var group in groups)
             {
                 if (group.Count() >= 2)
@@ -1002,9 +1002,9 @@ namespace Poker
                 count++;
             }
             Array.Sort(rank);
-            if (rank.Min() == 1)
+            if (rank.Min() == 1) // if you have an ace, the highest is 14
                 return 14;
-            else
+            else // else, it's just the highest card
             {
                 return rank.Max();
             } 
