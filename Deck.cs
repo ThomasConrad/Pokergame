@@ -66,9 +66,9 @@ namespace Poker
             }
         }
 
-        public Card GenerateCard(int amount = 52) //Valgfri mængde kort, standard = 52
+        public Card GenerateCard()
         {
-            if (currentCard < amount)
+            if (currentCard < 52)
                 return deck[currentCard++];
             else
                 return null;
@@ -83,20 +83,18 @@ namespace Poker
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    hands[i, j] = GenerateCard(playerAmount * 2);
+                    hands[i, j] = GenerateCard();
                 }
             }
             return hands;
         }
 
-            public Card[] BuildBoard()
-            {
+        public Card[] BuildBoard()
+        {
             Card[] hands = new Card[5];
-
             for (int i = 0; i < 5; i++)
             {
-               hands[i] = GenerateCard(5);
-                
+                hands[i] = GenerateCard();
             }
             return hands;
         }
@@ -224,9 +222,8 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-                    Console.Clear();
                     connection.receiveString(5);
-
+                    Console.Clear();
                     ////////////////////
                     /// GAME RUNNING ///
                     ////////////////////
@@ -236,7 +233,7 @@ namespace Poker
                     Int32 bet = 0;
                     Int32 currentBet = 0;
                     Int32 money = connection.receiveInt();
-                    Console.WriteLine("bank: " + money.ToString());
+                    Console.WriteLine("Your cash: " + money.ToString());
                     Card[] hand = new Card[2];
                     Card[] board = new Card[5];
                     Int32 allCash = 0;
@@ -327,6 +324,7 @@ namespace Poker
                         }
                         else if (tempString == "PING")
                         {
+                            Console.Clear();
                             //Player count
                             playerCount = connection.receiveInt();
                             displayedPlayers = new string[playerCount];
@@ -379,7 +377,7 @@ namespace Poker
                         }
                         else if (tempString == "HAND")
                         {
-                            for (int i = 0; i < hand.Length; i++)
+                            for (int i = 0; i < 2; i++)
                             {
                                 hand[i] = connection.receiveCard();
                             }
@@ -391,7 +389,11 @@ namespace Poker
                                 board[i] = connection.receiveCard();
                             }
                         }
-
+                        else if (tempString == "WINR")
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Player " + connection.receiveInt().ToString() + " has won, and takes " + connection.receiveInt().ToString());
+                        }
                     }
 
                     break;
@@ -518,7 +520,7 @@ namespace Poker
                     while (running)
                     {
                         mainDeck.Shuffle();
-                        Card[,] hands = mainDeck.PlayerHands(server.players);
+                        Card[,] hands = mainDeck.PlayerHands(playerAmount);
                         //Plank is board, know your synonyms
                         Card[] plank = mainDeck.BuildBoard();
 
@@ -541,9 +543,8 @@ namespace Poker
                         dead = 0;
 
                         //Send hands to all players
-
                         server.sendStringToAll("HAND");
-                        for (int i = 0; i < playerAmount; i++)
+                        for (Int32 i = 0; i < playerAmount; i++)
                         {
                             for (int j = 0; j < 2; j++)
                             {
@@ -561,7 +562,7 @@ namespace Poker
                             }
                         }
                         
-                        //print servers hand
+                        //Print servers hand
                         PrintHandFromArray(hands, 0);
 
                         //Assigns big and small blinds
@@ -767,41 +768,15 @@ namespace Poker
                             else if (players[i, 1] == 5)
                             {
                                 players[i, 0] += pool; //Big money, ayyy
+                                server.sendStringToAll("WINR");
+                                server.sendIntToAll(players[i, 2]);
                             }
                         }
                     }
                     break;
-
             }
-            ///////////////////////////////////
-            //REMEMBER TO DELETE THIS SECTION//
-            ///////////////////////////////////
-
-            Console.WriteLine("Program Over, remember to delete me. ONEGAI DESU");
-            Console.ReadLine();
-
         }
-
     }
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     public static class Game
     {
@@ -1204,6 +1179,7 @@ namespace Poker
         public void sendCard(Card message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message.ToString()));
+
             Thread.Sleep(50);
         }
 
