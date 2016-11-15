@@ -289,3 +289,4 @@ bin/Debug/ConsoleApplication.pdb
 **/bin/Debug/
 **/bin/Release/
 >>>>>>> origin/master
+*.exe

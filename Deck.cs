@@ -124,9 +124,13 @@ namespace Poker
             Console.WriteLine("Your hand:");
             for (int i = 0; i < 2; i++)
             {
-                tempHand[i] = CardToName(hands[slot-1, i]);
+                tempHand[i] = CardToName(hands[slot, i]);
             }
             Console.WriteLine(tempHand[0] + " and " + tempHand[1]);
+        }
+        static void Print(string element)
+        {
+            Console.WriteLine(element);
         }
 
         static void PrintHand(Card[] hands)
@@ -239,16 +243,24 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-
+                    Console.Clear();
                     connection.receiveString(5);
                     ////////////////////
                     /// GAME RUNNING ///
                     ////////////////////
 
                     Int32 playerCount = connection.receiveInt();
+                    Console.WriteLine(playerCount.ToString() + " players");
                     Int32 bet = 0;
                     Int32 currentBet = 0;
                     Int32 money = connection.receiveInt();
+                    Console.WriteLine("bank: " + money.ToString());
+                    Card[] hand = new Card[2];
+                    for(int i = 0; i < hand.Length; i++)
+                    {
+                        hand[i] = connection.receiveCard();
+                    }
+                    PrintHand(hand);
                     Int32[,] playerList = new Int32[playerCount,3];
                     string tempString;
                     string[] receivedArray;
@@ -498,9 +510,8 @@ namespace Poker
                     server.sendStringToAll("START");
                     server.sendIntToAll(playerAmount);
                     server.sendIntToAll(initialMoney);
-
                     Card[,] hands = mainDeck.PlayerHands(server.players);
-
+                    
                     ////////////////////////////
                     /// RUNS THE ACTUAL GAME ///
                     ////////////////////////////
@@ -526,7 +537,7 @@ namespace Poker
                         playerAmount -= dead;
                         dead = 0;
 
-                        //Send hands to players
+                        //Send hands to all players, not the server
 
                         for (int i = 1; i < playerAmount; i++)
                         {
@@ -535,6 +546,9 @@ namespace Poker
                                 server.sendCard(hands[i, j], i);
                             }
                         }
+
+                        //print servers hand
+                        PrintHandFromArray(hands, 0);
 
                         //Assigns big and small blinds
                         for (Int32 i = 0; i < playerAmount; i++)
@@ -608,7 +622,7 @@ namespace Poker
                                         break;
                                 }
                                 //Update board for everyone here. Somehow. We've gotta invent a format for a string that informs the changes...
-                                server.updateAll(bets, pool, players);
+                                //server.updateAll(bets, pool, players);
                                 //
                                 //
                             }
