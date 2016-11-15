@@ -331,7 +331,6 @@ namespace Poker
                             //Client money
                             money = connection.receiveInt();
                             //Betting values for players
-                            receivedArray = connection.receiveString().Split(',');
                             for (Int32 i = 0; i < playerCount; i++)
                             {
                                 playerList[i, 0] = Convert.ToInt32(receivedArray[i]);
@@ -556,7 +555,7 @@ namespace Poker
                         server.sendStringToAll("BORD");
                         for(int i = 0; i < playerAmount; i++)
                         {
-                            for (int j = 0; i < 5; i++)
+                            for (int j = 0; j < 5; j++)
                             {
                                 server.sendCard(plank[j], i);
                             }
