@@ -238,87 +238,6 @@ namespace Poker
                     }
                     Console.Clear();
                     Console.WriteLine("Connection successful! Waiting for host to start.");
-
-                    connection.receiveString(5);
-                    ////////////////////
-                    /// GAME RUNNING ///
-                    ////////////////////
-                    Int32 playerCount = connection.receiveInt();
-                    Int32 bet = 0;
-                    Int32 currentBet = 0;
-                    Int32 money = 0;
-                    Int32[,] playerList = new Int32[playerCount,3];
-                    string tempString;
-                    while (true)
-                    {
-                        tempString = connection.receiveString(4);
-                        if (tempString == "TURN")
-                        {
-                            string answer = Console.ReadLine();
-
-                            //Options need to be implemented in the display
-                            //1 = check, 2= call, 3= raise, 4= fold
-                            picking:
-                            switch (answer)
-                            {
-                                case "1":
-                                    if (bet == currentBet)
-                                    {
-                                        connection.sendString("CHCK");
-                                    }
-                                    else
-                                    {
-                                        goto picking;
-                                    }
-                                    break;
-                                case "2":
-                                    bet = currentBet;
-                                    connection.sendString("CALL");
-                                    break;
-                                case "3":
-                                    if (money < currentBet-bet + 1)
-                                    {
-                                        Console.WriteLine("You don't have enough money left for that, pick your option again.");
-                                        goto picking;
-                                    }
-                                    Console.WriteLine("Amount (minimum " + currentBet.ToString() + "): ");
-                                    Int32 raise = Convert.ToInt32(Console.ReadLine());
-                                    if (raise+bet > currentBet)
-                                    {
-                                        connection.sendString("RAIS");
-                                        connection.sendInt(raise);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Not high enough, pick your option again.");
-                                        goto picking;
-                                    }
-                                    break;
-                                case "4":
-                                    connection.sendString("FOLD");
-                                    break;
-                            }
-                        }
-                        else if (tempString == "SMLL")
-                        {
-                            bet = 100;
-                        }
-                        else if (tempString == "BIGB")
-                        {
-                            bet = 200;
-                        }
-                        else if (tempString == "KILL")
-                        {
-                            break;
-                        }
-                        else if (tempString == "PING")
-                        {
-                            money = connection.receiveInt();
-                        }
-
-                    }
-
-                    /*
                     Console.Clear();
                     Console.WriteLine("Your hand:");
 
@@ -329,7 +248,7 @@ namespace Poker
                     }
                     Console.WriteLine(tempCard[0] + " and " + tempCard[1]);
                     Console.ReadLine(); 
-                    */
+
 
 
 
@@ -475,8 +394,6 @@ namespace Poker
                         server.acceptPlayer(server.players);
 
                     }
-
-                    server.sendStringToAll("START");
 
                     Card[,] hands = mainDeck.PlayerHands(server.players);
                     string[] names = new string[playerAmount];
@@ -1023,13 +940,6 @@ namespace Poker
             if (isTwoPair(cards)) { return 40 + highValue; }
             if (isPair(cards)) { return 20 + highValue; }
             else {return highValue; }
-
-
-
-
-
-
-
         }
 
         static void BestHand(Card[] playerHand, Card[] board)
