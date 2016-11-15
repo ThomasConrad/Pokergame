@@ -480,10 +480,7 @@ namespace Poker
                     {
                         mainDeck.Shuffle();
                         Card[,] hands = mainDeck.PlayerHands(server.players);
-<<<<<<< HEAD
                         //Plank is board, know your synonyms
-=======
->>>>>>> origin/master
                         Card[] plank = mainDeck.BuildBoard();
 
                         //Kills bankrupt players
