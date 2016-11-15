@@ -274,9 +274,12 @@ namespace Poker
 
                     break;
                 case "2": //HOST
-                    Int32 playeramount;
+                    Int32 playerAmount;
                     Int32 initialMoney;
                     Int32 dead = 0;
+                    Int32 round = 1;
+                    Int32[] bets;
+                    Int32[] currentPlayers;
                     Deck mainDeck = new Deck();
                     mainDeck.Shuffle();
 
@@ -318,8 +321,8 @@ namespace Poker
                         Console.Clear();
                         try
                         {
-                            playeramount = Convert.ToInt32(setplayers);
-                            if (playeramount > 16 || playeramount < 2)
+                            playerAmount = Convert.ToInt32(setplayers);
+                            if (playerAmount > 16 || playerAmount < 2)
                             {
                                 continue;
                             }
@@ -354,13 +357,14 @@ namespace Poker
 
                     //Creates a tracking array for the players, noting the amount of money the have as well as being used to keep general statistics for running the game.
                     //We really should've made a class for these things >:(
-                    Int32[,] players = new Int32[playeramount+1,2];
-                    for (Int32 i = 0; i < playeramount; i++)
+                    //[player, 0] for money, [player, 1] for status flags, [player, 2] for associated socket to tie it into the network system
+                    Int32[,] players = new Int32[playerAmount+1,3];
+                    for (Int32 i = 0; i < playerAmount; i++)
                     {
                         players[i,0] = initialMoney;
 
                         //Flag for status checks, big blind, small blind and bankruptcy
-                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit creek without a paddle
+                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit creek without a paddle, 4 = in-round
                         players[i, 1] = 0;
                     }
 
@@ -368,9 +372,9 @@ namespace Poker
                     players[0, 1] = 1;
                     players[1, 1] = 2;
 
-                    //Ghost player to make handling of players easier later on, sits outside the visible range of for loops, because they run towards the playeramount
-                    players[playeramount, 0] = 0;
-                    players[playeramount, 1] = 3;
+                    //Ghost player to make handling of players easier later on, sits outside the visible range of for loops, because they run towards the playerAmount
+                    players[playerAmount, 0] = 0;
+                    players[playerAmount, 1] = 3;
 
                     //Accepts players, by looping until everyone is in.
                     //Will look smooth when running, .acceptPlayer will wait for ~30 seconds before letting the program continue, unless someone tries to connect
@@ -380,19 +384,19 @@ namespace Poker
                     while (true)
                     {
                         Console.Clear();
-                        if (playeramount == server.players)
+                        if (playerAmount == server.players)
                         {
                             break;
                         }
                         Console.WriteLine("Your local IP: " + Game.getLocalIP().ToString());
-                        Console.WriteLine("Waiting for " + (playeramount - server.players).ToString() + " more players.\nCurrent players:");
+                        Console.WriteLine("Waiting for " + (playerAmount - server.players).ToString() + " more players.\nCurrent players:");
                         //Print names here, we need some way to receive and store them, but that's not important right now.
                         server.acceptPlayer(server.players);
 
                     }
 
                     Card[,] hands = mainDeck.PlayerHands(server.players);
-                    string[] names = new string[playeramount];
+                    string[] names = new string[playerAmount];
 
                     ////////////////////////////
                     /// RUNS THE ACTUAL GAME ///
@@ -404,23 +408,24 @@ namespace Poker
                         //Kills bankrupt players
                         for (Int32 i = 0; i < dead; i++)
                         {
-                            for (Int32 j = 0; j < playeramount; j++)
+                            for (Int32 j = 0; j < playerAmount; j++)
                             {
                                 if (players[j, 1] == 3)
                                 {
                                     players[j, 0] = players[j + 1, 0];
                                     players[j, 1] = players[j + 1, 1];
+                                    players[j, 2] = players[j + 1, 2];
                                 }
                             }
                         }
 
-                        //Reduce playeramount by amount of players that got killed
-                        playeramount -= dead;
+                        //Reduce playerAmount by amount of players that got killed
+                        playerAmount -= dead;
                         dead = 0;
 
                         //Send hands to players
 
-                        for (int i = 1; i < playeramount; i++)
+                        for (int i = 1; i < playerAmount; i++)
                         {
                             for (int j = 0; j < 2; j++)
                             {
@@ -434,7 +439,7 @@ namespace Poker
                         Console.ReadLine();
 
                         //Assigns big and small blinds
-                        for (Int32 i = 0; i < playeramount; i++)
+                        for (Int32 i = 0; i < playerAmount; i++)
                         {
                             if (players[i, 1] == 1)
                             {
@@ -442,7 +447,7 @@ namespace Poker
                                 if (players[i + 1, 1] == 3)
                                 {
                                     players[0, 1] = 1;
-                                }
+                                } 
                                 players[i + 1, 1] = 1;
                             }
                             else if (players[i,1] == 2)
@@ -451,7 +456,17 @@ namespace Poker
                             }
                         }
 
+                        //Take rounds
 
+                        bets = new Int32[playerAmount];
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            players[i, 1] = 4;
+                        }
+                        while (round != 5)
+                        {
+
+                        }
 
                     }
 
