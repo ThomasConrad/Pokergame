@@ -657,11 +657,27 @@ namespace Poker
                 count++;
             }
             Array.Sort(ranks);
+            Int32[] tempHand1 = new Int32[7];
             Int32[] tempHand = new Int32[7];
             Int32[] tempHand0 = new Int32[7];
             Int32 count0 = 0;
             var groups = ranks.GroupBy(item => item);
             if (groups.Count() < 5) { return false; } //if you don't have 5 different cards
+            if (ranks.Max() == 13 && ranks.Min() == 1)
+            {
+                foreach (var group in groups)
+                {
+                    tempHand1[count0] = group.Key;
+                    count0++;
+                }
+                Array.Sort(tempHand1);
+                if(tempHand1[groups.Count()-1] == 13 && tempHand1[groups.Count()-2] == 12 && tempHand1[groups.Count()-3] == 11 && tempHand1[groups.Count()-4] == 10)
+                {
+                    return true;
+                }
+                    
+                count0 = 0;
+            }
             if (groups.Count() == 5) //if you have 5 different cards
             {
                 foreach (var group in groups)
@@ -706,6 +722,50 @@ namespace Poker
                 return false;
             }
             return false;
+        }
+        
+        static Boolean isStraightFlush(Card[] cards)
+        {
+            if(isStraight(cards) && isFlush(cards)) { return true; }
+            else { return false; }
+        }
+
+        static Boolean isRoyalFlush(Card[] cards)
+        {
+            if(isStraightFlush(cards))
+            {
+                int[] ranks = new int[7];
+                int count = 0;
+                foreach (var element in cards)
+                {
+                    string tempCard = element.ToString();
+                    string[] tempStrings = tempCard.Split(',');
+                    int[] tempInts = Array.ConvertAll(tempStrings, s => int.Parse(s));
+                    ranks[count] = tempInts[0];
+                    count++;
+                }
+                Array.Sort(ranks);
+                Int32[] tempHand1 = new Int32[7];
+                Int32 count0 = 0;
+                var groups = ranks.GroupBy(item => item);
+                if (ranks.Max() == 13 && ranks.Min() == 1)
+                {
+                    foreach (var group in groups)
+                    {
+                        tempHand1[count0] = group.Key;
+                        count0++;
+                    }
+                    Array.Sort(tempHand1);
+                    if (tempHand1[groups.Count() - 1] == 13 && tempHand1[groups.Count() - 2] == 12 && tempHand1[groups.Count() - 3] == 11 && tempHand1[groups.Count() - 4] == 10)
+                    {
+                        return true;
+                    }
+
+                    else { return false; }
+                }
+                else { return false; }
+            }
+            else { return false; }
         }
 
         static void BestHand(Card[] playerHand, Card[] board)
