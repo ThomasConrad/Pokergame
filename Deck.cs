@@ -74,6 +74,7 @@ namespace Poker
                 return null;
         }
 
+
         public Card[,] PlayerHands(int playerAmount)
         {
             Card[,] hands = new Card[playerAmount, 2];
@@ -84,6 +85,18 @@ namespace Poker
                 {
                     hands[i, j] = GenerateCard(playerAmount * 2);
                 }
+            }
+            return hands;
+        }
+
+            public Card[] BuildBoard()
+            {
+            Card[] hands = new Card[5];
+
+            for (int i = 0; i < 5; i++)
+            {
+               hands[i] = GenerateCard(5);
+                
             }
             return hands;
         }
@@ -144,9 +157,19 @@ namespace Poker
             Console.WriteLine("Your hand: " + tempHand[0] + " and " + tempHand[1]);
         }
 
-        static void printBoard()
+        static void printBoard(Card[] board, int amount)
         {
-
+            string[] tempBoard = new string[amount];
+            for (int i = 0; i < amount; i++)
+            {
+                tempBoard[i] = CardToName(board[i]);
+            }
+            for(int i = 0; i < amount - 1; i++)
+            {
+                Console.Write(tempBoard[i].ToString());
+                Console.Write(",");
+            }
+            Console.Write(tempBoard[amount-1].ToString());
         }
         
 
@@ -193,6 +216,7 @@ namespace Poker
                     Console.WriteLine("Connection successful! Waiting for host to start.");
                     Console.Clear();
                     connection.receiveString(5);
+
                     ////////////////////
                     /// GAME RUNNING ///
                     ////////////////////
@@ -437,7 +461,7 @@ namespace Poker
                     server.sendStringToAll("START");
                     server.sendIntToAll(playerAmount);
                     server.sendIntToAll(initialMoney);
-                    Card[,] hands = mainDeck.PlayerHands(server.players);
+                    
                     
                     ////////////////////////////
                     /// RUNS THE ACTUAL GAME ///
@@ -446,6 +470,10 @@ namespace Poker
                     bool running = true;
                     while (running)
                     {
+                        mainDeck.Shuffle();
+                        Card[,] hands = mainDeck.PlayerHands(server.players);
+                        Card[] board = mainDeck.BuildBoard();
+
                         //Kills bankrupt players
                         for (Int32 i = 0; i < dead; i++)
                         {
@@ -466,6 +494,7 @@ namespace Poker
 
                         //Send hands to all players, not the server
 
+                        server.sendStringToAll("HAND");
                         for (int i = 1; i < playerAmount; i++)
                         {
                             for (int j = 0; j < 2; j++)
@@ -473,6 +502,7 @@ namespace Poker
                                 server.sendCard(hands[i, j], i);
                             }
                         }
+
 
                         //print servers hand
                         PrintHandFromArray(hands, 0);
@@ -560,6 +590,7 @@ namespace Poker
                         server.sendStringToAll(sentArray);
                         while (round != 5)
                         {
+
                             for (Int32 cP = 0; cP < playerAmount; cP++)
                             {
                                 server.sendString("TURN", players[cP, 2]);
@@ -620,11 +651,11 @@ namespace Poker
                                 }
                                 server.sendStringToAll(sentArray);
                             }
+                            round++;
                         }
                         //Check for who won somewhere in here, and update player on that information
-                        //
-                        //
-                        //
+                        
+
 
                         //Check for bankruptcy and pay winner
                         for (Int32 i = 0; i < playerAmount; i++)
