@@ -1010,6 +1010,28 @@ namespace Poker
             } 
         }
 
+        static int deckValue(Card[] cards)
+        {
+            int highValue = highCard(cards);
+            if (isRoyalFlush(cards)) { return 180 + highValue; }
+            if (isStraightFlush(cards)) { return 160 + highValue; }
+            if (isFourOfAKind(cards)) { return 140 + highValue; }
+            if (isFullHouse(cards)) { return 120 + highValue; }
+            if (isFlush(cards)) { return 100 + highValue; }
+            if (isStraight(cards)) { return 80 + highValue; }
+            if (isThreeOfAKind(cards)) { return 60 + highValue; }
+            if (isTwoPair(cards)) { return 40 + highValue; }
+            if (isPair(cards)) { return 20 + highValue; }
+            else {return highValue; }
+
+
+
+
+
+
+
+        }
+
         static void BestHand(Card[] playerHand, Card[] board)
         {
             int cardAmount = playerHand.Length + board.Length;
