@@ -235,6 +235,7 @@ namespace Poker
                     Int32[,] playerList = new Int32[playerCount,3];
                     string tempString;
                     string[] receivedArray;
+                    string[] displayedPlayers;
                     while (true)
                     {
                         tempString = connection.receiveString(4);
@@ -316,27 +317,55 @@ namespace Poker
                         }
                         else if (tempString == "PING")
                         {
+                            //Player count
+                            playerCount = connection.receiveInt();
+                            displayedPlayers = new string[playerCount];
+                            //Client money
                             money = connection.receiveInt();
+                            //Betting values for players
                             receivedArray = connection.receiveString().Split(',');
                             for (Int32 i = 0; i < playerCount; i++)
                             {
                                 playerList[i, 0] = Convert.ToInt32(receivedArray[i]);
                             }
+                            //Sockets for players
+                            receivedArray = connection.receiveString().Split(',');
+                            for (Int32 i = 0; i < playerCount; i++)
+                            {
+                                playerList[i, 2] = Convert.ToInt32(receivedArray[i]);
+                            }
+                            //Current bet
                             currentBet = connection.receiveInt();
+                            //Pool amount
                             allCash = connection.receiveInt();
+                            //Cash for everyone
                             receivedArray = connection.receiveString().Split(',');
                             for (Int32 i = 0; i < playerCount; i++)
                             {
-                                playerList[i, 1] = Convert.ToInt32(receivedArray[i]);
+                                playerList[i, 3] = Convert.ToInt32(receivedArray[i]);
                             }
                             receivedArray = connection.receiveString().Split(',');
+                            //Status flags
                             for (Int32 i = 0; i < playerCount; i++)
                             {
-                                playerList[i, 2] = Convert.ToInt32(receivedArray);
+                                playerList[i, 1] = Convert.ToInt32(receivedArray);
                             }
+                            //Cards of board to display
                             cardsDisplayed = connection.receiveInt();
                             PrintHand(hand);
                             printBoard(board, cardsDisplayed);
+                            for (Int32 i = 0; i < playerCount; i++)
+                            {
+                                displayedPlayers[i] = "Player " + (playerList[i, 2] + 1).ToString() + ": Money - " + playerList[i, 3].ToString();
+                                if (playerList[i, 1] != 4)
+                                {
+                                    displayedPlayers[i] += ", Folded";
+                                }
+                                else
+                                {
+                                    displayedPlayers[i] += ", Bet - " + playerList[i, 0].ToString();
+                                }
+                            }
                         }
                         else if (tempString == "HAND")
                         {
@@ -576,7 +605,10 @@ namespace Poker
                         }
 
                         //Update board for everyone here.
-                        //Cash amount for player client
+                        server.sendStringToAll("PING");
+                        //Player count
+                        server.sendIntToAll(playerAmount);
+                        //Cash for all players
                         for (Int32 i = 0; i < playerAmount; i++)
                         {
                             server.sendInt(players[i, 0], players[i, 2]);
@@ -588,6 +620,11 @@ namespace Poker
                             sentArray += i.ToString() + ",";
                         }
                         server.sendStringToAll(sentArray);
+                        //Sockets are sent
+                        for (Int32 i = 0; i < playerAmount; i++)
+                        {
+                            sentArray += players[i, 2].ToString() + ",";
+                        }
                         //Current bet
                         server.sendIntToAll(bets.Max());
                         //Pool amount
@@ -599,13 +636,15 @@ namespace Poker
                             sentArray += players[i, 0];
                         }
                         server.sendStringToAll(sentArray);
-                        //Active players
+                        //Status flags
                         sentArray = "";
                         for (Int32 i = 0; i < playerAmount; i++)
                         {
                             sentArray += players[i, 1] + ",";
                         }
                         server.sendStringToAll(sentArray);
+                        //Displayed cards this round
+                        server.sendIntToAll(round + 2);
                         while (round != 5)
                         {
 
@@ -639,7 +678,9 @@ namespace Poker
 
                                 //Update board for everyone here.
                                 server.sendStringToAll("PING");
-                                //Cash amount for player client
+                                //Player count
+                                server.sendIntToAll(playerAmount);
+                                //Cash for all players
                                 for (Int32 i = 0; i < playerAmount; i++)
                                 {
                                     server.sendInt(players[i, 0], players[i, 2]);
@@ -649,6 +690,12 @@ namespace Poker
                                 foreach (Int32 i in bets)
                                 {
                                     sentArray += i.ToString() + ",";
+                                }
+                                server.sendStringToAll(sentArray);
+                                //Socket for all players
+                                for (Int32 i = 0; i < playerAmount; i++)
+                                {
+                                    sentArray += players[i, 2].ToString() + ",";
                                 }
                                 server.sendStringToAll(sentArray);
                                 //Current bet
