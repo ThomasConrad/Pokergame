@@ -228,9 +228,9 @@ namespace Poker
                     Int32 money = connection.receiveInt();
                     Console.WriteLine("bank: " + money.ToString());
                     Card[] hand = new Card[2];
-
-
+                    Card[] board = new Card[5];
                     Int32 allCash = 0;
+                    Int32 cardsDisplayed;
 
                     Int32[,] playerList = new Int32[playerCount,3];
                     string tempString;
@@ -316,7 +316,6 @@ namespace Poker
                         }
                         else if (tempString == "PING")
                         {
-                            
                             money = connection.receiveInt();
                             receivedArray = connection.receiveString().Split(',');
                             for (Int32 i = 0; i < playerCount; i++)
@@ -335,6 +334,9 @@ namespace Poker
                             {
                                 playerList[i, 2] = Convert.ToInt32(receivedArray);
                             }
+                            cardsDisplayed = connection.receiveInt();
+                            PrintHand(hand);
+                            printBoard(board, cardsDisplayed);
                         }
                         else if (tempString == "HAND")
                         {
@@ -342,7 +344,13 @@ namespace Poker
                             {
                                 hand[i] = connection.receiveCard();
                             }
-                            PrintHand(hand);
+                        }
+                        else if (tempString == "BORD")
+                        {
+                            for (Int32 i = 0; i < 5; i++)
+                            {
+                                board[i] = connection.receiveCard();
+                            }
                         }
 
                     }
@@ -472,7 +480,8 @@ namespace Poker
                     {
                         mainDeck.Shuffle();
                         Card[,] hands = mainDeck.PlayerHands(server.players);
-                        Card[] board = mainDeck.BuildBoard();
+                        //Plank is board, know your synonyms
+                        Card[] plank = mainDeck.BuildBoard();
 
                         //Kills bankrupt players
                         for (Int32 i = 0; i < dead; i++)
@@ -620,6 +629,7 @@ namespace Poker
 
 
                                 //Update board for everyone here.
+                                server.sendStringToAll("PING");
                                 //Cash amount for player client
                                 for (Int32 i = 0; i < playerAmount; i++)
                                 {
@@ -650,6 +660,7 @@ namespace Poker
                                     sentArray += players[i, 1] + ",";
                                 }
                                 server.sendStringToAll(sentArray);
+                                server.sendIntToAll(round + 2);
                             }
                             round++;
                         }
