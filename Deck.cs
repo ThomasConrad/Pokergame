@@ -657,11 +657,55 @@ namespace Poker
                 count++;
             }
             Array.Sort(ranks);
-            for(int i = 0; i < 3; i++)
+            Int32[] tempHand = new Int32[7];
+            Int32[] tempHand0 = new Int32[7];
+            Int32 count0 = 0;
+            var groups = ranks.GroupBy(item => item);
+            if (groups.Count() < 5) { return false; } //if you don't have 5 different cards
+            if (groups.Count() == 5) //if you have 5 different cards
             {
-                if (ranks[6-i] == ranks[5-i]-1 && ranks[5 - i] == ranks[4 - i] - 1 && ranks[6 - i] == ranks[5 - i] - 1)
+                foreach (var group in groups)
+                {
+                    tempHand[count0] = group.Key;
+                }
+                Array.Sort(tempHand);
+                if (tempHand.Sum() / 5 == tempHand[2]) { return true; }
+                return false;
             }
-           
+            if (groups.Count() == 6) // if you have 6 different cards
+            {
+                foreach (var group in groups)
+                {
+                    tempHand[count0] = group.Key;
+                }
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int j = 0; j < 5; j++)
+                    {
+                        tempHand0[j] = tempHand[j + i];
+                    }
+                    if (tempHand0.Sum() / 5 == tempHand0[2]) { return true; }
+
+                }
+                return false;
+            }
+            if (groups.Count() == 7)// if you have 7 different cards
+            {
+                foreach (var group in groups)
+                {
+                    tempHand[count0] = group.Key;
+                }
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 5; j++)
+                    {
+                        tempHand0[j] = tempHand[j + i];
+                    }
+                    if (tempHand0.Sum() / 5 == tempHand0[2]) { return true; }
+                }
+                return false;
+            }
+            return false;
         }
 
         static void BestHand(Card[] playerHand, Card[] board)
