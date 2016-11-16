@@ -452,11 +452,15 @@ namespace Poker
                         try
                         {
                             initialMoney = Convert.ToInt32(setmoney);
-                            if (initialMoney > 1000000000 || initialMoney < 1000)
+                            if (initialMoney > 10000000 || initialMoney < 1000)
                             {
                                 continue;
                             }
                             break;
+                        }
+                        catch (OverflowException)
+                        {
+                            initialMoney = 10000000;
                         }
                         catch (FormatException)
                         {
@@ -1149,9 +1153,9 @@ namespace Poker
             players++;
         }
 
-        public void listen(int time = 10)
+        public void listen(int queue = 10)
         {
-            s.Listen(time);
+            s.Listen(queue);
         }
 
         public void sendString(string message, Int32 slot)
@@ -1193,12 +1197,12 @@ namespace Poker
 
         public Int32 receiveInt(Int32 slot)
         {
-            byte[] bytes = new byte[64];
+            byte[] bytes = new byte[32];
             sockets[slot].Receive(bytes);
             return Convert.ToInt32(encoder.GetString(bytes));
         }
 
-        public string receiveString(Int32 slot, Int32 length = 64)
+        public string receiveString(Int32 slot, Int32 length = 32)
         {
             byte[] bytes = new byte[length];
             sockets[slot].Receive(bytes);
@@ -1233,19 +1237,19 @@ namespace Poker
 
         public Int32 receiveInt()
         {
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[64];
             s.Receive(bytes);
             return Convert.ToInt32(encoder.GetString(bytes));
         }
 
-        public string receiveString(Int32 length = 64)
+        public string receiveString(Int32 length = 32)
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
             return encoder.GetString(bytes);
         }
 
-        public Card receiveCard(Int32 length = 64)
+        public Card receiveCard(Int32 length = 32)
         {
             byte[] bytes = new byte[length];
             s.Receive(bytes);
