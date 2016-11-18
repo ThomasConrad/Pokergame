@@ -511,6 +511,7 @@ namespace Poker
                         Console.WriteLine("Your local IP: " + Game.getLocalIP().ToString());
                         Console.WriteLine("Waiting for " + (playerAmount - server.players).ToString() + " more players.\nCurrent players:");
                         server.acceptPlayer(server.players);
+                        players[server.players, 2] = server.players - 1;
 
                     }
 
