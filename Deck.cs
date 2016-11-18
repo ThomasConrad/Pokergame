@@ -172,6 +172,7 @@ namespace Poker
             {
                 tempBoard[i] = CardToName(board[i]);
             }
+            Console.WriteLine("The board: ");
             for(int i = 0; i < amount - 1; i++)
             {
                 Console.Write(tempBoard[i].ToString());
@@ -179,7 +180,6 @@ namespace Poker
             }
             Console.Write(tempBoard[amount-1].ToString());
         }
-        
 
 
         public static void Main()
@@ -249,6 +249,7 @@ namespace Poker
                         {
                             //Options need to be implemented in the display
                             //1 = check, 2= call, 3= raise, 4= fold
+                            Console.WriteLine("Input number: 1 = Check, 2= Call, 3= Raise, 4 = Fold");
                             picking:
                             string answer = Console.ReadLine();
                             if (answer.Length == 1)
@@ -323,12 +324,13 @@ namespace Poker
                         }
                         else if (tempString == "PING")
                         {
-                            Console.Clear();
+                            //Console.Clear();
                             //Player count
                             playerCount = connection.receiveInt();
                             displayedPlayers = new string[playerCount];
                             //Client money
                             money = connection.receiveInt();
+                            Console.WriteLine("Money: " + money.ToString());
                             //Betting values for players
                             for (Int32 i = 0; i < playerCount; i++)
                             {
@@ -341,8 +343,10 @@ namespace Poker
                             }
                             //Current bet
                             currentBet = connection.receiveInt();
+                            Console.WriteLine("Pool: " + currentBet);
                             //Pool amount
                             allCash = connection.receiveInt();
+                            Print("Pool: " + allCash.ToString());
                             //Cash for everyone
                             for (Int32 i = 0; i < playerCount; i++)
                             {
@@ -355,8 +359,10 @@ namespace Poker
                             }
                             //Cards of board to display
                             cardsDisplayed = connection.receiveInt();
+                            Print("Cardsdisplayed: " + cardsDisplayed.ToString());
                             PrintHand(hand);
-                            printBoard(board, cardsDisplayed);
+                            if(cardsDisplayed > 2) { printBoard(board, cardsDisplayed); }
+                            Print("Printed board");
                             for (Int32 i = 0; i < playerCount; i++)
                             {
                                 displayedPlayers[i] = "Player " + (playerList[i, 2] + 1).ToString() + ": Money - " + playerList[i, 3].ToString();
@@ -368,21 +374,24 @@ namespace Poker
                                 {
                                     displayedPlayers[i] += ", Bet - " + playerList[i, 0].ToString();
                                 }
+                                Print("i did donnered");
                             }
                         }
-                        else if (tempString == "HAND")
+                        else if (tempString == "HAND") //Recieves hand
                         {
                             for (int i = 0; i < 2; i++)
                             {
                                 hand[i] = connection.receiveCard();
                             }
+                            PrintHand(hand);
                         }
-                        else if (tempString == "BORD")
+                        else if (tempString == "BORD") //recieves board
                         {
                             for (Int32 i = 0; i < 5; i++)
                             {
                                 board[i] = connection.receiveCard();
                             }
+                            printBoard(board, 5);
                         }
                         else if (tempString == "WINR")
                         {
@@ -469,7 +478,6 @@ namespace Poker
                     }
 
                     //Creates a tracking array for the players, noting the amount of money the have as well as being used to keep general statistics for running the game.
-                    //We really should've made a class for these things >:(
                     //[player, 0] for money, [player, 1] for status flags, [player, 2] for associated socket to tie it into the network system
                     Int32[,] players = new Int32[playerAmount+1,3];
                     for (Int32 i = 0; i < playerAmount; i++)
@@ -477,7 +485,7 @@ namespace Poker
                         players[i,0] = initialMoney;
 
                         //Flag for status checks, big blind, small blind and bankruptcy
-                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit creek without a paddle, 4 = in-round
+                        //0 = nothing, 1 = small blind, 2 = big blind, 3 = shit  creek without a paddle, 4 = in-round
                         players[i, 1] = 0;
                     }
 
@@ -619,7 +627,7 @@ namespace Poker
                         server.sendStringToAll("PING");
                         //Player count
                         server.sendIntToAll(playerAmount);
-                        //Cash for all players
+                        //Send client money
                         for (Int32 i = 0; i < playerAmount; i++)
                         {
                             server.sendInt(players[i, 0], players[i, 2]);
@@ -649,8 +657,9 @@ namespace Poker
                             server.sendIntToAll(players[i, 1]);
                         }
                         //Displayed cards this round
-                        server.sendIntToAll(round + 2);
-                        while (round != 5)
+                        server.sendIntToAll(round - 1);
+                        Console.WriteLine(round);
+                        while (round < 5)
                         {
 
                             for (Int32 cP = 0; cP < playerAmount; cP++)
@@ -702,6 +711,7 @@ namespace Poker
                                 }
                                 //Current bet
                                 server.sendIntToAll(bets.Max());
+
                                 //Pool amount
                                 server.sendIntToAll(pool);
                                 //Cash for all players
@@ -1161,14 +1171,14 @@ namespace Poker
         public void sendString(string message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message));
-            Thread.Sleep(50);
+            Thread.Sleep(100);
         }
 
         public void sendCard(Card message, Int32 slot)
         {
             sockets[slot].Send(encoder.GetBytes(message.ToString()));
 
-            Thread.Sleep(50);
+            Thread.Sleep(100);
         }
 
         public void sendStringToAll(string message)
@@ -1176,7 +1186,7 @@ namespace Poker
             for (Int32 i = 0; i < players; i++)
             {
                 sendString(message, i);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
         }
 
@@ -1185,7 +1195,7 @@ namespace Poker
             for (Int32 i = 0; i < players; i++)
             {
                 sendInt(message, i);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
         }
 
